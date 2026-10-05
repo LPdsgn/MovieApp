@@ -19,6 +19,7 @@ Documenti in `Docs/`:
 - `valutazione-motore-ml.md`: valore del ML e vincoli di licenza TMDB.
 - `valutazione-ui-stack.md`: perché React Native Reusables + Uniwind.
 - `valutazione-strategie-ml.md`: quali famiglie di algoritmi di raccomandazione sono adatte, e quando.
+- `valutazione-toolchain.md`: lint, format, hook e CI/CD, e perché ESLint + Prettier invece di OXC.
 
 Il passo "esportare le tabelle Core ML" di `valutazione-porting.md` è **superato** dalla decisione su Wikidata (vedi sotto).
 
@@ -60,6 +61,36 @@ Perimetro v1 = le funzioni che oggi funzionano:
 - Settings (piattaforme, storage, about).
 
 Fuori dalla v1, perché nell'originale erano morte: Search, onboarding, location e lingua.
+
+## Toolchain
+
+Motivazioni in `Docs/valutazione-toolchain.md`.
+
+| Area | Strumento | Dove |
+|---|---|---|
+| Lint | ESLint con `eslint-config-expo` (`npx expo lint`) | `mobile/` |
+| Format | Prettier + `prettier-plugin-tailwindcss` (con `tailwindStylesheet` puntato al CSS di Uniwind, percorso relativo alla config di Prettier) + `eslint-config-prettier` | Root, per tutto il repo |
+| Typecheck | La versione di TypeScript del template (6.0.3), `tsc --noEmit` | `mobile/` |
+| Python | ruff (lint + format), pytest | `pipeline/` |
+| Hook | lefthook + commitlint | Root |
+| CI | GitHub Actions | `.github/workflows/` |
+| CD | EAS Workflows, solo dalla prima build da distribuire | `.eas/workflows/` |
+
+- **Non passare a oxlint, oxfmt o TypeScript 7 senza rivalutare.**
+  - Il template Expo SDK 57 ha il React Compiler attivo, e `eslint-plugin-react-hooks` 7 ne attiva 14 diagnostiche che oxlint non ha.
+  - typescript-eslint supporta TypeScript solo fino alla 6.0.
+- **Reanimated con il React Compiler attivo:** sui valori condivisi usare `get()` e `set()`, non `.value`.
+- **Prettier si esegue a parte**, non come regola ESLint: niente `eslint-plugin-prettier`.
+- **Workspace:** il `package.json` di root è la radice del workspace npm (`"workspaces": ["mobile"]`), e `npm install` installa anche gli hook.
+- **Hook:**
+  - `pre-commit`: Prettier, ESLint `--fix` e ruff sui file in stage, più `tsc --noEmit` se cambia `mobile/`;
+  - `commit-msg`: commitlint;
+  - `pre-push`: jest o pytest, a seconda della cartella toccata.
+- **CI e CD:** i controlli girano su GitHub Actions, gratuite su un repo pubblico. EAS fa solo build e aggiornamenti, perché il piano gratuito include appena 60 minuti al mese di workflow.
+- **Insidie della CI:**
+  - sui fork le Actions sono disattivate per default;
+  - nei repo pubblici i workflow programmati si spengono dopo 60 giorni senza attività;
+  - l'artefatto dei dati non va committato a ogni esecuzione della pipeline.
 
 ## Dati: Wikidata per raccomandare, TMDB solo per mostrare
 
