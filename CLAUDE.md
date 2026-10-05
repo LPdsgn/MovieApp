@@ -1,0 +1,176 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Stato del repository
+
+MoovieFinder è un'app per scoprire film con lo swipe. Il repo è in fase di **riscrittura da iOS nativo (Swift) a React Native + Expo**.
+
+| Percorso | Contenuto | Regola |
+|---|---|---|
+| `MoviesApp/`, `MoviesApp.xcodeproj/`, `*.mlmodel` in root | App Swift originale (2022) | **Solo riferimento, non si modifica.** È la specifica funzionale e visiva |
+| `Docs/` | Analisi e valutazioni da cui nascono le decisioni qui sotto | Leggerle prima di decisioni architetturali |
+| `mobile/` | App Expo (da creare) | — |
+| `pipeline/` | Pipeline dati Wikidata in Python, progetto `uv` (da creare) | — |
+
+Documenti in `Docs/`:
+- `analisi-codebase.md`: com'è fatta l'app Swift e i suoi bug.
+- `valutazione-porting.md`: mappa iOS → Expo e stima.
+- `valutazione-motore-ml.md`: valore del ML e vincoli di licenza TMDB.
+- `valutazione-ui-stack.md`: perché React Native Reusables + Uniwind.
+- `valutazione-strategie-ml.md`: quali famiglie di algoritmi di raccomandazione sono adatte, e quando.
+
+Il passo "esportare le tabelle Core ML" di `valutazione-porting.md` è **superato** dalla decisione su Wikidata (vedi sotto).
+
+## Comandi
+
+App Swift di riferimento (compila con Xcode 16.2, circa 32 warning noti):
+
+```bash
+xcodebuild -project MoviesApp.xcodeproj -scheme MoviesApp \
+  -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+```
+
+React Native Reusables (CLI `@react-native-reusables/cli`; usa la CLI di shadcn sotto il cofano):
+
+```bash
+npx @react-native-reusables/cli@latest init -t minimal-uniwind      # scaffold di mobile/
+npx @react-native-reusables/cli@latest add switch alert-dialog --styling-library uniwind
+npx @react-native-reusables/cli@latest doctor
+```
+
+Quando `mobile/` e `pipeline/` esistono, sostituisci questa nota con i comandi reali: dev server, test, test singolo, lint, typecheck, esecuzione della pipeline.
+
+## Stack di `mobile/`
+
+- Expo + Expo Router.
+- **React Native Reusables nella variante Uniwind.** I componenti vengono copiati nel progetto e sono codice nostro. Poggiano su `@rn-primitives`, che dà già l'accessibilità.
+- **Uniwind**, piano gratuito (Tailwind 4). Non usare NativeWind: la v4 è su Tailwind 3 e la v5 è ancora RC.
+- Reanimated + Gesture Handler per il mazzo di carte e le animazioni.
+- TanStack Query per le chiamate di rete.
+- `expo-sqlite` per i dati locali.
+- `expo-image` per le immagini.
+- Tema solo scuro, come l'originale. I colori di partenza sono i colorset in `MoviesApp/Assets.xcassets/`.
+- Lingue it, en, de, come l'originale. Nei `.strings` originali ci sono chiavi rotte, documentate in `Docs/analisi-codebase.md`.
+
+Perimetro v1 = le funzioni che oggi funzionano:
+- Discover (swipe + storico);
+- Watchlist;
+- dettaglio film (cast, provider);
+- Settings (piattaforme, storage, about).
+
+Fuori dalla v1, perché nell'originale erano morte: Search, onboarding, location e lingua.
+
+## Dati: Wikidata per raccomandare, TMDB solo per mostrare
+
+È un vincolo di licenza, non una preferenza. I termini delle API TMDB (aggiornati il 20/10/2023) vietano di usare contenuti TMDB in applicazioni ML o AI e di conservarli in cache per più di 6 mesi.
+
+- **TMDB si usa solo a runtime e solo per la UI:** poster, dettagli, cast, provider.
+  - Il catalogo, le feature e la logica di raccomandazione non leggono mai contenuti TMDB.
+  - La pipeline non usa TMDB. L'unica eccezione è la colonna opzionale di popolarità (vedi Pipeline), che resta **disattivata** finché non c'è un accordo scritto con TMDB.
+  - Su disco l'app salva solo id, mai contenuti TMDB.
+- **Wikidata (CC0)** è l'unica fonte di catalogo e feature. Il collegamento ai film TMDB passa dalla proprietà **P4947** (TMDB movie ID).
+- **Chiave TMDB mai nel client.** Le chiamate passano da un proxy che aggiunge la chiave lato server. La chiave in `MoviesApp/Models/NetworkManager.swift` è pubblica e va considerata compromessa.
+- **Non portare né derivare dati dai file dell'app originale:**
+  - i 3 `.mlmodel` sono stati addestrati su metadati TMDB;
+  - `MoviesApp/Resources/movies.json` e `movies-id-name.json` sono dump TMDB.
+- **Attribuzioni obbligatorie in UI:**
+  - TMDB (logo + avviso "not endorsed or certified by TMDB");
+  - JustWatch per i dati dei provider (requisito dell'endpoint `/watch/providers`).
+
+## Pipeline dati (`pipeline/`)
+
+Va implementata da subito. Produce i dati del motore di raccomandazione v1, che non usa reti neurali.
+
+- **Sorgente:** SPARQL su `query.wikidata.org`.
+  - **Timeout di 60 s.** Il solo conteggio dei film con P4947 e almeno 10 sitelink impiega circa 30 s, quindi le query vanno spezzate. Due modi:
+    - partizionare per anno (P577);
+    - raccogliere i QID e poi scaricare le entità a blocchi con `wbgetentities` (50 id per richiesta).
+  - **User-Agent:** la policy Wikimedia richiede un User-Agent descrittivo con un contatto. Va letto da una variabile d'ambiente, senza email personali nel codice.
+  - **Limiti di frequenza:** WDQS può limitare in modo drastico. Il 05/10/2026 ha risposto HTTP 429, "1 req / min", durante un disservizio. La pipeline deve:
+    - rispettare `Retry-After` e riprovare con attese crescenti;
+    - salvare i risultati parziali, così una nuova esecuzione riprende senza ripetere le query già completate.
+  - Usare i valori *truthy* (`wdt:`).
+  - **P4947 può avere più valori, e più QID possono puntare allo stesso id TMDB:** vanno deduplicati in modo esplicito.
+- **Catalogo:** film con P4947, filtrati per popolarità con `wikibase:sitelinks`, che sostituisce la popolarità TMDB (non utilizzabile).
+  - Con soglia ≥ 10 sono circa 28.600 film (ottobre 2026); l'originale ne aveva ~17.000.
+  - La soglia è una manopola di tuning.
+  - **Limite noto:** i sitelink arrivano in ritardo sulle novità. Dei 500 film più popolari su TMDB, il catalogo ne include 405.
+    - 56 degli esclusi hanno un elemento Wikidata ma pochi sitelink (mediana 3), e sono quasi tutti del 2025-2026.
+    - 39 non hanno proprio un elemento Wikidata con P4947, quindi non hanno feature e non si possono raccomandare.
+- **Popolarità TMDB (colonna opzionale, disattivata per default).** Si attiva solo se arriva un accordo con TMDB.
+  - **Fonte:** l'export giornaliero `https://files.tmdb.org/p/exports/movie_ids_MM_DD_YYYY.json.gz`. Contiene `id`, `original_title`, `popularity`, `adult` e `video` per tutti i film, non richiede chiave API e ogni file resta disponibile 3 mesi.
+  - **Rumore:** un singolo giorno è molto rumoroso (alcuni classici valgono quasi 0), quindi si usa la **mediana degli ultimi 7-14 export**.
+  - **Correlazione:** sul catalogo il rango di popolarità e quello dei sitelink hanno correlazione di Spearman 0,63. Sono correlati ma non ridondanti.
+  - **Uso 1, inclusione nel catalogo:** entra un film con sitelink ≥ soglia **oppure** fra i più popolari, purché abbia un elemento Wikidata.
+  - **Uso 2, segnale di base:** una combinazione dei ranghi percentuali, `α·rango(sitelink) + (1−α)·rango(popolarità)`, per le prime carte e per i pari punteggio. **Mai come feature di similarità.**
+- **Feature:** insiemi di QID, non etichette, così restano indipendenti dalla lingua:
+  - genere (P136), regista (P57), cast (P161), sceneggiatore (P58);
+  - casa di produzione (P272), serie (P179), basato su (P144), soggetto (P921);
+  - paese (P495), lingua originale (P364), compositore (P86), fotografia (P344);
+  - decade da P577, durata (P2047).
+- **Output:** un artefatto SQLite **versionato**, con versione dei dati e dello schema, che contiene:
+  - catalogo (QID, id TMDB, sitelink, anno, più la popolarità TMDB come colonna nullable, vuota finché la fonte è disattivata);
+  - tabella delle feature per film;
+  - top-K vicini precalcolati con TF-IDF sulle feature e similarità del coseno (K=64 come nell'originale). Con l'IDF le feature comuni (genere "drammatico", paese "Stati Uniti") pesano poco e quelle rare (regista, saga) pesano molto.
+
+  L'app lo include nel bundle. Il canale di aggiornamento è un punto aperto.
+- **Aggiornare i dati** significa rigenerare l'artefatto: nessuna logica dell'app deve presupporre un catalogo fisso.
+
+## Motore di raccomandazione
+
+Motivazioni in `Docs/valutazione-strategie-ml.md`.
+
+**Cosa si può fare dipende dai dati.** Abbiamo le feature Wikidata e gli swipe di un solo utente, sul suo dispositivo. Mancano le interazioni di molti utenti, quindi collaborative filtering, LightFM, learning to rank e deep learning restano fuori.
+
+**Struttura.** Il motore ha 4 stadi, ognuno è una funzione pura. Nel complesso è `(artefatto, eventi utente) → prossima carta`. Niente framework.
+
+| Stadio | v1 (sul dispositivo, senza runtime ML) | Dopo la riscrittura |
+|---|---|---|
+| Retrieval | Vicini dei film piaciuti + serbatoio di film popolari per sitelink, che serve anche per le prime carte | + vicini negli embedding |
+| Ranking | `Σ voto × similarità + λ·prior` su una sola tabella combinata (non 3 modelli a rotazione come nell'originale) | Modello lineare condiviso per utente (LinUCB o Thompson lineare) su embedding, prior, decade e durata. Si aggiorna con Sherman-Morrison: matrice d×d con d ≤ 64 |
+| Riordino | Escludere i film già visti e quelli non ancora usciti (P577 nel futuro). Mai due film della stessa saga di fila (P179). Diversità con MMR | Uguale |
+| Esplorazione | ε-greedy (ε ≈ 0,10-0,15), pescando dal serbatoio dei popolari o dei diversi | Thompson / LinUCB |
+
+**Embedding futuri.** Si ottengono con una SVD troncata della matrice film × feature TF-IDF, calcolata nella pipeline con numpy o scikit-learn: 32-64 dimensioni, distribuiti come altra tabella versionata dell'artefatto. Niente reti neurali. Non generarli finché non esiste il codice che li usa.
+
+**Eventi.** Si salvano **grezzi**, non solo i punteggi aggregati. Ogni evento contiene:
+- film, azione (like, scarto, watchlist) e timestamp;
+- **versione di algoritmo e artefatto** che ha proposto la carta;
+- **propensità**: la probabilità con cui la carta è stata scelta (es. 0,9 se sfruttamento, 0,1 se esplorazione).
+
+Servono a tre cose:
+- al bandit;
+- alla valutazione off-policy (IPS) dei motori futuri sui log;
+- alla metrica di successo: percentuale di swipe a destra e aggiunte alla watchlist per sessione, divise per versione di algoritmo.
+
+**Fonti di dati.** Anche il ML futuro userà solo feature Wikidata ed eventi dell'utente, mai contenuti TMDB.
+
+**Solo se arrivano interazioni di molti utenti:** item-kNN sui like in comune, ALS o BPR (libreria `implicit`), poi LightFM o LightGBM. Le interazioni possono venire da:
+- una telemetria propria, opt-in, con backend;
+- MovieLens, ma serve il permesso di GroupLens: la licenza copre solo la ricerca, e le trasformazioni si ridistribuiscono solo con la stessa licenza.
+
+Questi modelli producono vicini o embedding per film, quindi entrano nell'artefatto senza cambiare l'app.
+
+**Non adatti:** deep learning, GNN, regole di associazione, RL completo.
+
+## Errori dell'app originale da non ripetere
+
+Dettagli e riferimenti in `Docs/analisi-codebase.md`.
+
+- **Swipe persi o applicati tardi.** Gli swipe non venivano salvati e il feedback arrivava dopo il fetch della carta successiva. Va salvato e applicato *prima*.
+- **Segnaposto al posto degli errori.** Su errore si restituiva un film segnaposto (`Movie.example`), che causava un loop infinito di richieste. Gli errori devono essere espliciti e i retry limitati.
+- **Watchlist in quattro copie.** Qui deve esserci una sola fonte di verità in SQLite.
+- **Bottone bloccato.** Ogni stato di caricamento deve avere anche il ramo di errore.
+- **Nessuna accessibilità.** I bottoni con sola icona devono avere un'etichetta accessibile.
+
+## Punti aperti (da decidere con l'utente)
+
+- **Filtro per piattaforme di streaming.** I provider sono dati TMDB/JustWatch: usarli per filtrare le raccomandazioni è in tensione con la regola "TMDB solo per la UI".
+- **Piattaforma del proxy TMDB.**
+- **Canale di aggiornamento dell'artefatto:** nuova build, EAS Update o download da un host statico.
+- **Uso commerciale:** richiede un accordo scritto con TMDB.
+
+## Commit
+
+Scope del repo: `mobile`, `pipeline`, `legacy`, `docs`.
