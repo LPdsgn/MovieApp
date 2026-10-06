@@ -7,3 +7,7 @@ node_modules/
 __pycache__/
 .pytest_cache/
 .ruff_cache/
+
+# Pipeline: cache delle query e artefatto generato
+pipeline/.cache/
+pipeline/dist/
