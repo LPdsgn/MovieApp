@@ -182,7 +182,7 @@ Va implementata da subito. Produce i dati del motore di raccomandazione v1, che 
 - **Output:** un artefatto SQLite **versionato**, con versione dei dati e dello schema, che contiene:
    - catalogo (QID, id TMDB, sitelink, anno, più la popolarità TMDB come colonna nullable, vuota finché la fonte è disattivata);
    - tabella delle feature per film;
-   - top-K vicini precalcolati con TF-IDF sulle feature e similarità del coseno (K=64 come nell'originale). Con l'IDF le feature comuni (genere "drammatico", paese "Stati Uniti") pesano poco e quelle rare (regista, saga) pesano molto.
+   - top-K vicini precalcolati con TF-IDF sulle feature e similarità del coseno (K=64 come nell'originale). Con l'IDF le feature comuni (genere "drammatico", paese "Stati Uniti") pesano poco e quelle rare (regista, saga) pesano molto. Stanno in un BLOB per film (K record da 6 byte: qid uint32 + coseno uint16, little-endian), perché una riga per vicino costava 4 volte tanto: 41 MB contro 11 (misurato il 07/10/2026 su 28.572 film).
 
    L'app lo include nel bundle. Il canale di aggiornamento è un punto aperto.
 

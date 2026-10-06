@@ -6,6 +6,7 @@ Ogni coppia (proprietà, QID) è un termine. TF binario, IDF = log(N / df): le f
 
 import logging
 import sqlite3
+import struct
 from pathlib import Path
 
 import numpy as np
@@ -18,6 +19,17 @@ log = logging.getLogger(__name__)
 K = 64
 BLOCK = 1000
 ALGORITHM = "tfidf-cosine-v1"
+# Un record per vicino: qid uint32 e coseno × 65535 uint16. Formato descritto in artifact.SCHEMA.
+RECORD = struct.Struct("<IH")
+
+
+def pack(entries: list[tuple[int, float]]) -> bytes:
+    """[(qid vicino, coseno), ...] dal più simile -> BLOB della tabella neighbors."""
+    return b"".join(RECORD.pack(qid, round(score * 65535)) for qid, score in entries)
+
+
+def unpack(data: bytes) -> list[tuple[int, float]]:
+    return [(qid, q / 65535) for qid, q in RECORD.iter_unpack(data)]
 
 
 def tfidf(qids: list[int], rows: list[tuple[int, str, int]]) -> sparse.csr_matrix:
@@ -62,15 +74,20 @@ def compute(conn: sqlite3.Connection, k: int = K) -> int:
     qids = [q for (q,) in conn.execute("SELECT qid FROM movies ORDER BY qid")]
     rows = conn.execute("SELECT qid, property, value FROM features").fetchall()
     x = tfidf(qids, rows)
-    result = [(qids[i], rank, qids[j], score) for i, rank, j, score in top_k(x, k)]
+    per_film: dict[int, list[tuple[int, float]]] = {}
+    for i, _rank, j, score in top_k(x, k):  # già in ordine di rank
+        per_film.setdefault(qids[i], []).append((qids[j], score))
     with conn:
-        conn.executemany("INSERT INTO neighbors VALUES (?, ?, ?, ?)", result)
+        conn.executemany(
+            "INSERT INTO neighbors VALUES (?, ?)",
+            [(qid, pack(entries)) for qid, entries in per_film.items()],
+        )
         artifact.set_meta(conn, neighbors_k=k, neighbors_algorithm=ALGORITHM)
-    return len(result)
+    return len(per_film)
 
 
 def build(out: Path, min_sitelinks: int, cache_dir: Path) -> int:
-    """Catalogo + feature + vicini. Restituisce il numero di righe in neighbors."""
+    """Catalogo + feature + vicini. Restituisce il numero di film con vicini."""
     features.build(out, min_sitelinks, cache_dir)
     conn = artifact.connect(out)
     n = compute(conn)

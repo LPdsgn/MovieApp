@@ -1,7 +1,7 @@
 import sqlite3
 
 from moovie_pipeline import artifact
-from moovie_pipeline.neighbors import compute, tfidf, top_k
+from moovie_pipeline.neighbors import compute, pack, tfidf, top_k, unpack
 
 DRAMA, USA = ("P136", 1), ("P495", 2)
 KUBRICK, NOLAN = ("P57", 10), ("P57", 11)
@@ -38,8 +38,16 @@ def test_compute_writes_neighbors_and_meta():
     )
     conn.executemany("INSERT INTO features VALUES (?, ?, ?)", ROWS)
     n = compute(conn, k=2)
-    assert n == conn.execute("SELECT count(*) FROM neighbors").fetchone()[0] > 0
-    assert conn.execute("SELECT neighbor FROM neighbors WHERE qid = 1 AND rank = 0").fetchone() == (
-        2,
-    )
+    assert n == conn.execute("SELECT count(*) FROM neighbors").fetchone()[0] == 4
+    (blob,) = conn.execute("SELECT data FROM neighbors WHERE qid = 1").fetchone()
+    entries = unpack(blob)
+    assert len(blob) == 2 * 6 and len(entries) == 2
+    assert entries[0][0] == 2 and entries[0][1] > entries[1][1]
     assert dict(conn.execute("SELECT key, value FROM meta"))["neighbors_k"] == "2"
+
+
+def test_pack_roundtrip_quantizes_to_16_bit():
+    entries = [(4294967295, 1.0), (7, 0.5), (1, 0.0)]
+    out = unpack(pack(entries))
+    assert [q for q, _ in out] == [4294967295, 7, 1]
+    assert all(abs(a - b) < 1 / 65535 for (_, a), (_, b) in zip(entries, out, strict=True))

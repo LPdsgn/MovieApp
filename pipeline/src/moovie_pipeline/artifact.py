@@ -4,7 +4,7 @@ import sqlite3
 from collections.abc import Iterable
 from pathlib import Path
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 SCHEMA = """
 CREATE TABLE meta (
@@ -31,14 +31,13 @@ CREATE TABLE features (
     PRIMARY KEY (qid, property, value)
 ) WITHOUT ROWID;
 
--- Top-K vicini per film (TF-IDF + coseno), rank 0 = più simile.
+-- Top-K vicini per film (TF-IDF + coseno), una riga per film invece di K: 4 volte più compatto.
+-- data = K record da 6 byte, little-endian, dal più simile: uint32 qid del vicino, uint16 coseno × 65535.
+-- Meno di K record se il film ha pochi vicini con similarità > 0.
 CREATE TABLE neighbors (
-    qid      INTEGER NOT NULL REFERENCES movies(qid),
-    rank     INTEGER NOT NULL,
-    neighbor INTEGER NOT NULL REFERENCES movies(qid),
-    score    REAL    NOT NULL,
-    PRIMARY KEY (qid, rank)
-) WITHOUT ROWID;
+    qid  INTEGER PRIMARY KEY REFERENCES movies(qid),
+    data BLOB    NOT NULL
+);
 """
 
 

@@ -19,10 +19,9 @@ Ogni comando ricostruisce l'artefatto da zero a partire dalle cache, quindi bast
 
 ## Stadi
 
-| Stadio     | Comando    | Scrive                                             |
-| ---------- | ---------- | -------------------------------------------------- |
-| 1 Catalogo | `catalog`  | `movies` (qid, tmdb_id, sitelinks) e `meta`        |
-| 2 Feature  | `features` | `features`, più `released` e `runtime` in `movies` |
-| 3 Vicini   | —          | `neighbors` (TF-IDF + coseno, K=64)                |
-
-Lo schema completo è in `src/moovie_pipeline/artifact.py`.
+| Stadio                                                     | Comando     | Scrive                                                            |
+| ---------------------------------------------------------- | ----------- | ----------------------------------------------------------------- |
+| 1 Catalogo                                                 | `catalog`   | `movies` (qid, tmdb_id, sitelinks) e `meta`                       |
+| 2 Feature                                                  | `features`  | `features`, più `released` e `runtime` in `movies`                |
+| 3 Vicini                                                   | `neighbors` | `neighbors`: un BLOB per film con i K=64 vicini (TF-IDF + coseno) |
+| Lo schema completo è in `src/moovie_pipeline/artifact.py`. |

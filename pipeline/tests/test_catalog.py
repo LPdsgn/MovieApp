@@ -36,7 +36,7 @@ def test_artifact_roundtrip(tmp_path):
         artifact.insert_movies(conn, [Row(1, 10, 50)])
         artifact.set_meta(conn, data_version="20261006")
     meta = dict(conn.execute("SELECT key, value FROM meta"))
-    assert meta == {"schema_version": "1", "data_version": "20261006"}
+    assert meta == {"schema_version": str(artifact.SCHEMA_VERSION), "data_version": "20261006"}
     assert conn.execute("SELECT qid, tmdb_id, released FROM movies").fetchall() == [(1, 10, None)]
     conn.close()
 
