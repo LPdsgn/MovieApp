@@ -19,6 +19,11 @@ pre-commit:
         glob: 'mobile/**/*.{ts,tsx}'
         run: pnpm typecheck
 
+      - name: typecheck-proxy
+        root: proxy/
+        glob: 'proxy/**/*.ts'
+        run: pnpm typecheck
+
       - name: ruff
         root: pipeline/
         glob: 'pipeline/**/*.py'
@@ -38,8 +43,12 @@ pre-push:
         glob: 'mobile/**/*'
         run: pnpm test
 
+      - name: node-test
+        root: proxy/
+        glob: 'proxy/**/*'
+        run: pnpm test
+
       - name: pytest
         root: pipeline/
         glob: 'pipeline/**/*'
-        # ponytail: exit 5 = nessun test raccolto, tollerato finché la pipeline non ha test; togliere al primo test
-        run: uv run pytest || [ $? -eq 5 ]
+        run: uv run pytest
