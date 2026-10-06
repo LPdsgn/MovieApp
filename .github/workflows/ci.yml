@@ -1,0 +1,50 @@
+name: CI
+
+# Per ora niente trigger su push: solo pull request e avvio manuale dalla tab Actions
+on:
+   pull_request:
+   workflow_dispatch:
+
+concurrency:
+   group: ci-${{ github.ref }}
+   cancel-in-progress: true
+
+env:
+   # lo script prepare di root non deve installare gli hook git in CI
+   LEFTHOOK: 0
+
+jobs:
+   mobile:
+      name: mobile (format, lint, typecheck, test)
+      runs-on: ubuntu-latest
+      steps:
+         - uses: actions/checkout@v7
+         - uses: pnpm/action-setup@v6 # versione da packageManager
+         - uses: actions/setup-node@v7
+           with:
+              node-version-file: .nvmrc
+              cache: pnpm
+         - run: pnpm install --frozen-lockfile
+         - run: pnpm format:check
+         - run: pnpm --filter mobile lint
+         - run: pnpm --filter mobile typecheck
+         - run: pnpm --filter mobile test
+         - run: pnpm dlx expo-doctor
+           working-directory: mobile
+
+   pipeline:
+      name: pipeline (ruff, pytest)
+      runs-on: ubuntu-latest
+      defaults:
+         run:
+            working-directory: pipeline
+      steps:
+         - uses: actions/checkout@v7
+         - uses: astral-sh/setup-uv@v10
+           with:
+              enable-cache: true
+         - run: uv sync --locked
+         - run: uv run ruff check .
+         - run: uv run ruff format --check .
+         # ponytail: exit 5 = nessun test raccolto, tollerato finché la pipeline non ha test; togliere al primo test
+         - run: uv run pytest || [ $? -eq 5 ]
