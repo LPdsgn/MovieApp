@@ -1,0 +1,10 @@
+# App Swift originale: solo riferimento, non si tocca
+MoviesApp/
+MoviesApp.xcodeproj/
+
+# Lockfile e file generati
+pnpm-lock.yaml
+uv.lock
+mobile/uniwind-types.d.ts
+mobile/.expo/
+mobile/dist/

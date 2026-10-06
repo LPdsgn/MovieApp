@@ -164,7 +164,14 @@ settings:
 
 importers:
 
-  .: {}
+  .:
+    devDependencies:
+      prettier:
+        specifier: ^3.9.9
+        version: 3.9.9
+      prettier-plugin-tailwindcss:
+        specifier: ^0.8.1
+        version: 0.8.1(prettier@3.9.9)
 
   mobile:
     dependencies:
@@ -331,12 +338,6 @@ importers:
       '@types/react':
         specifier: ~19.2.10
         version: 19.2.18
-      prettier:
-        specifier: ^3.8.3
-        version: 3.9.9
-      prettier-plugin-tailwindcss:
-        specifier: ^0.8.0
-        version: 0.8.1(prettier@3.9.9)
       typescript:
         specifier: ~6.0.3
         version: 6.0.3
