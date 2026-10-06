@@ -7,7 +7,8 @@
     "android": "expo start -c --android",
     "ios": "expo start -c --ios",
     "web": "expo start -c --web",
-    "clean": "rm -rf .expo node_modules"
+    "clean": "rm -rf .expo node_modules",
+    "lint": "expo lint"
   },
   "dependencies": {
     "@rn-primitives/accordion": "^1.5.2",
@@ -66,6 +67,9 @@
   "devDependencies": {
     "@babel/core": "^7.26.0",
     "@types/react": "~19.2.10",
+    "eslint": "^9.39.5",
+    "eslint-config-expo": "~57.0.2",
+    "eslint-config-prettier": "^10.1.8",
     "typescript": "~6.0.3"
   },
   "private": true
