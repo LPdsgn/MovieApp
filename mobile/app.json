@@ -7,16 +7,12 @@
     "icon": "./assets/images/icon.png",
     "scheme": "mooviefinder",
     "userInterfaceStyle": "dark",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "dev.luigipdt.mooviefinder",
       "infoPlist": {
-        "UISupportedInterfaceOrientations~iphone": [
-          "UIInterfaceOrientationPortrait"
-        ],
+        "UISupportedInterfaceOrientations~iphone": ["UIInterfaceOrientationPortrait"],
         "UISupportedInterfaceOrientations~ipad": [
           "UIInterfaceOrientationPortrait",
           "UIInterfaceOrientationPortraitUpsideDown",
