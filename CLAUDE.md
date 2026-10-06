@@ -10,8 +10,8 @@ MoovieFinder è un'app per scoprire film con lo swipe. Il repo è in fase di **r
 | --------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------- |
 | `MoviesApp/`, `MoviesApp.xcodeproj/`, `*.mlmodel` in root | App Swift originale (2022)                                  | **Solo riferimento, non si modifica.** È la specifica funzionale e visiva |
 | `Docs/`                                                   | Analisi e valutazioni da cui nascono le decisioni qui sotto | Leggerle prima di decisioni architetturali                                |
-| `mobile/`                                                 | App Expo (da creare)                                        | —                                                                         |
-| `pipeline/`                                               | Pipeline dati Wikidata in Python, progetto `uv` (da creare) | —                                                                         |
+| `mobile/`                                                 | App Expo (SDK 57), unico pacchetto del workspace pnpm       | —                                                                         |
+| `pipeline/`                                               | Pipeline dati Wikidata in Python, progetto `uv`             | —                                                                         |
 
 Documenti in `Docs/`:
 
@@ -33,15 +33,35 @@ xcodebuild -project MoviesApp.xcodeproj -scheme MoviesApp \
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 ```
 
-React Native Reusables (CLI `@react-native-reusables/cli`; usa la CLI di shadcn sotto il cofano):
+Root (workspace pnpm):
 
 ```bash
-npx @react-native-reusables/cli@latest init -t minimal-uniwind      # scaffold di mobile/
-npx @react-native-reusables/cli@latest add switch alert-dialog --styling-library uniwind
-npx @react-native-reusables/cli@latest doctor
+pnpm install                  # dipendenze + hook git (script prepare → lefthook install)
+pnpm format                   # prettier su tutto il repo; pnpm format:check per verificare
 ```
 
-Quando `mobile/` e `pipeline/` esistono, sostituisci questa nota con i comandi reali: dev server, test, test singolo, lint, typecheck, esecuzione della pipeline.
+`mobile/` (dalla root con `pnpm --filter mobile <script>`, o da `mobile/` con `pnpm <script>`):
+
+```bash
+pnpm dev                      # expo start -c; pnpm ios / pnpm android / pnpm web
+pnpm lint                     # expo lint (ESLint)
+pnpm typecheck                # tsc --noEmit
+pnpm test                     # jest con preset jest-expo
+pnpm test path/al/file.test.tsx         # un solo file (senza `--`: pnpm lo passerebbe a jest)
+pnpm test -t "nome del test"            # un solo test
+pnpm exec expo install <pacchetto>      # dipendenze native: versione allineata alla SDK
+pnpm dlx expo-doctor                    # controllo di coerenza del progetto Expo
+pnpm dlx @react-native-reusables/cli@latest add switch alert-dialog --styling-library uniwind
+```
+
+`pipeline/` (da `pipeline/`):
+
+```bash
+uv run moovie-pipeline        # entry point della pipeline
+uv run ruff check . && uv run ruff format .
+uv run pytest                 # exit 5 = nessun test raccolto
+uv run pytest tests/test_x.py::test_nome  # un solo test
+```
 
 ## Stack di `mobile/`
 
@@ -70,7 +90,7 @@ Motivazioni in `Docs/valutazione-toolchain.md`.
 
 | Area      | Strumento                                                                                                                                                           | Dove                    |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| Lint      | ESLint con `eslint-config-expo` (`npx expo lint`)                                                                                                                   | `mobile/`               |
+| Lint      | ESLint 9 con `eslint-config-expo` (`expo lint`)                                                                                                                     | `mobile/`               |
 | Format    | Prettier + `prettier-plugin-tailwindcss` (con `tailwindStylesheet` puntato al CSS di Uniwind, percorso relativo alla config di Prettier) + `eslint-config-prettier` | Root, per tutto il repo |
 | Typecheck | La versione di TypeScript del template (6.0.3), `tsc --noEmit`                                                                                                      | `mobile/`               |
 | Python    | ruff (lint + format), pytest                                                                                                                                        | `pipeline/`             |
@@ -83,12 +103,20 @@ Motivazioni in `Docs/valutazione-toolchain.md`.
    - typescript-eslint supporta TypeScript solo fino alla 6.0.
 - **Reanimated con il React Compiler attivo:** sui valori condivisi usare `get()` e `set()`, non `.value`.
 - **Prettier si esegue a parte**, non come regola ESLint: niente `eslint-plugin-prettier`.
-- **Workspace:** il `package.json` di root è la radice del workspace npm (`"workspaces": ["mobile"]`), e `npm install` installa anche gli hook.
+- **Solo pnpm**, mai npm o npx: `pnpm exec` per i binari locali, `pnpm dlx` per quelli una tantum. La versione è fissata in `packageManager` (`package.json` di root).
+- **Workspace pnpm** (`pnpm-workspace.yaml`):
+   - `nodeLinker: hoisted`, come nel template: Expo e Metro si aspettano un `node_modules` piatto;
+   - `allowBuilds`: pnpm blocca gli script di installazione delle dipendenze non elencati. `lefthook: false` perché gli hook li installa lo script `prepare` di root;
+   - `minimumReleaseAgeExclude`: pnpm rifiuta i pacchetti pubblicati da poco e aggiunge da solo le eccezioni quando `expo install` le richiede.
+- **ESLint fissato a `^9`:** `eslint-plugin-react` 7, incluso da `eslint-config-expo`, non funziona con ESLint 10.
+- **`mobile/expo-types.d.ts`** contiene il riferimento a `expo/types` (per esempio `*.css`), perché `expo-env.d.ts` è generato da `expo start` ed escluso da git. Senza, il typecheck fallisce in CI e negli hook.
+- **Classi Tailwind:** i colori del tema Uniwind stanno in `@layer theme`, non in `@theme`, quindi per Tailwind sono classi sconosciute e Prettier le mette in testa. È normale.
 - **Hook:**
    - `pre-commit`: Prettier, ESLint `--fix` e ruff sui file in stage, più `tsc --noEmit` se cambia `mobile/`;
    - `commit-msg`: commitlint;
    - `pre-push`: jest o pytest, a seconda della cartella toccata.
 - **CI e CD:** i controlli girano su GitHub Actions, gratuite su un repo pubblico. EAS fa solo build e aggiornamenti, perché il piano gratuito include appena 60 minuti al mese di workflow.
+- **Trigger della CI:** per ora solo `pull_request` e avvio manuale (`workflow_dispatch`), niente trigger su push.
 - **Insidie della CI:**
    - sui fork le Actions sono disattivate per default;
    - nei repo pubblici i workflow programmati si spengono dopo 60 giorni senza attività;
