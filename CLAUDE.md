@@ -79,75 +79,75 @@ Motivazioni in `Docs/valutazione-toolchain.md`.
 | CD        | EAS Workflows, solo dalla prima build da distribuire                                                                                                                | `.eas/workflows/`       |
 
 - **Non passare a oxlint, oxfmt o TypeScript 7 senza rivalutare.**
-  - Il template Expo SDK 57 ha il React Compiler attivo, e `eslint-plugin-react-hooks` 7 ne attiva 14 diagnostiche che oxlint non ha.
-  - typescript-eslint supporta TypeScript solo fino alla 6.0.
+   - Il template Expo SDK 57 ha il React Compiler attivo, e `eslint-plugin-react-hooks` 7 ne attiva 14 diagnostiche che oxlint non ha.
+   - typescript-eslint supporta TypeScript solo fino alla 6.0.
 - **Reanimated con il React Compiler attivo:** sui valori condivisi usare `get()` e `set()`, non `.value`.
 - **Prettier si esegue a parte**, non come regola ESLint: niente `eslint-plugin-prettier`.
 - **Workspace:** il `package.json` di root è la radice del workspace npm (`"workspaces": ["mobile"]`), e `npm install` installa anche gli hook.
 - **Hook:**
-  - `pre-commit`: Prettier, ESLint `--fix` e ruff sui file in stage, più `tsc --noEmit` se cambia `mobile/`;
-  - `commit-msg`: commitlint;
-  - `pre-push`: jest o pytest, a seconda della cartella toccata.
+   - `pre-commit`: Prettier, ESLint `--fix` e ruff sui file in stage, più `tsc --noEmit` se cambia `mobile/`;
+   - `commit-msg`: commitlint;
+   - `pre-push`: jest o pytest, a seconda della cartella toccata.
 - **CI e CD:** i controlli girano su GitHub Actions, gratuite su un repo pubblico. EAS fa solo build e aggiornamenti, perché il piano gratuito include appena 60 minuti al mese di workflow.
 - **Insidie della CI:**
-  - sui fork le Actions sono disattivate per default;
-  - nei repo pubblici i workflow programmati si spengono dopo 60 giorni senza attività;
-  - l'artefatto dei dati non va committato a ogni esecuzione della pipeline.
+   - sui fork le Actions sono disattivate per default;
+   - nei repo pubblici i workflow programmati si spengono dopo 60 giorni senza attività;
+   - l'artefatto dei dati non va committato a ogni esecuzione della pipeline.
 
 ## Dati: Wikidata per raccomandare, TMDB solo per mostrare
 
 È un vincolo di licenza, non una preferenza. I termini delle API TMDB (aggiornati il 20/10/2023) vietano di usare contenuti TMDB in applicazioni ML o AI e di conservarli in cache per più di 6 mesi.
 
 - **TMDB si usa solo a runtime e solo per la UI:** poster, dettagli, cast, provider.
-  - Il catalogo, le feature e la logica di raccomandazione non leggono mai contenuti TMDB.
-  - La pipeline non usa TMDB. L'unica eccezione è la colonna opzionale di popolarità (vedi Pipeline), che resta **disattivata** finché non c'è un accordo scritto con TMDB.
-  - Su disco l'app salva solo id, mai contenuti TMDB.
+   - Il catalogo, le feature e la logica di raccomandazione non leggono mai contenuti TMDB.
+   - La pipeline non usa TMDB. L'unica eccezione è la colonna opzionale di popolarità (vedi Pipeline), che resta **disattivata** finché non c'è un accordo scritto con TMDB.
+   - Su disco l'app salva solo id, mai contenuti TMDB.
 - **Wikidata (CC0)** è l'unica fonte di catalogo e feature. Il collegamento ai film TMDB passa dalla proprietà **P4947** (TMDB movie ID).
 - **Chiave TMDB mai nel client.** Le chiamate passano da un proxy che aggiunge la chiave lato server. La chiave in `MoviesApp/Models/NetworkManager.swift` è pubblica e va considerata compromessa.
 - **Non portare né derivare dati dai file dell'app originale:**
-  - i 3 `.mlmodel` sono stati addestrati su metadati TMDB;
-  - `MoviesApp/Resources/movies.json` e `movies-id-name.json` sono dump TMDB.
+   - i 3 `.mlmodel` sono stati addestrati su metadati TMDB;
+   - `MoviesApp/Resources/movies.json` e `movies-id-name.json` sono dump TMDB.
 - **Attribuzioni obbligatorie in UI:**
-  - TMDB (logo + avviso "not endorsed or certified by TMDB");
-  - JustWatch per i dati dei provider (requisito dell'endpoint `/watch/providers`).
+   - TMDB (logo + avviso "not endorsed or certified by TMDB");
+   - JustWatch per i dati dei provider (requisito dell'endpoint `/watch/providers`).
 
 ## Pipeline dati (`pipeline/`)
 
 Va implementata da subito. Produce i dati del motore di raccomandazione v1, che non usa reti neurali.
 
 - **Sorgente:** SPARQL su `query.wikidata.org`.
-  - **Timeout di 60 s.** Il solo conteggio dei film con P4947 e almeno 10 sitelink impiega circa 30 s, quindi le query vanno spezzate. Due modi:
-    - partizionare per anno (P577);
-    - raccogliere i QID e poi scaricare le entità a blocchi con `wbgetentities` (50 id per richiesta).
-  - **User-Agent:** la policy Wikimedia richiede un User-Agent descrittivo con un contatto. Va letto da una variabile d'ambiente, senza email personali nel codice.
-  - **Limiti di frequenza:** WDQS può limitare in modo drastico. Il 05/10/2026 ha risposto HTTP 429, "1 req / min", durante un disservizio. La pipeline deve:
-    - rispettare `Retry-After` e riprovare con attese crescenti;
-    - salvare i risultati parziali, così una nuova esecuzione riprende senza ripetere le query già completate.
-  - Usare i valori _truthy_ (`wdt:`).
-  - **P4947 può avere più valori, e più QID possono puntare allo stesso id TMDB:** vanno deduplicati in modo esplicito.
+   - **Timeout di 60 s.** Il solo conteggio dei film con P4947 e almeno 10 sitelink impiega circa 30 s, quindi le query vanno spezzate. Due modi:
+      - partizionare per anno (P577);
+      - raccogliere i QID e poi scaricare le entità a blocchi con `wbgetentities` (50 id per richiesta).
+   - **User-Agent:** la policy Wikimedia richiede un User-Agent descrittivo con un contatto. Va letto da una variabile d'ambiente, senza email personali nel codice.
+   - **Limiti di frequenza:** WDQS può limitare in modo drastico. Il 05/10/2026 ha risposto HTTP 429, "1 req / min", durante un disservizio. La pipeline deve:
+      - rispettare `Retry-After` e riprovare con attese crescenti;
+      - salvare i risultati parziali, così una nuova esecuzione riprende senza ripetere le query già completate.
+   - Usare i valori _truthy_ (`wdt:`).
+   - **P4947 può avere più valori, e più QID possono puntare allo stesso id TMDB:** vanno deduplicati in modo esplicito.
 - **Catalogo:** film con P4947, filtrati per popolarità con `wikibase:sitelinks`, che sostituisce la popolarità TMDB (non utilizzabile).
-  - Con soglia ≥ 10 sono circa 28.600 film (ottobre 2026); l'originale ne aveva ~17.000.
-  - La soglia è una manopola di tuning.
-  - **Limite noto:** i sitelink arrivano in ritardo sulle novità. Dei 500 film più popolari su TMDB, il catalogo ne include 405.
-    - 56 degli esclusi hanno un elemento Wikidata ma pochi sitelink (mediana 3), e sono quasi tutti del 2025-2026.
-    - 39 non hanno proprio un elemento Wikidata con P4947, quindi non hanno feature e non si possono raccomandare.
+   - Con soglia ≥ 10 sono circa 28.600 film (ottobre 2026); l'originale ne aveva ~17.000.
+   - La soglia è una manopola di tuning.
+   - **Limite noto:** i sitelink arrivano in ritardo sulle novità. Dei 500 film più popolari su TMDB, il catalogo ne include 405.
+      - 56 degli esclusi hanno un elemento Wikidata ma pochi sitelink (mediana 3), e sono quasi tutti del 2025-2026.
+      - 39 non hanno proprio un elemento Wikidata con P4947, quindi non hanno feature e non si possono raccomandare.
 - **Popolarità TMDB (colonna opzionale, disattivata per default).** Si attiva solo se arriva un accordo con TMDB.
-  - **Fonte:** l'export giornaliero `https://files.tmdb.org/p/exports/movie_ids_MM_DD_YYYY.json.gz`. Contiene `id`, `original_title`, `popularity`, `adult` e `video` per tutti i film, non richiede chiave API e ogni file resta disponibile 3 mesi.
-  - **Rumore:** un singolo giorno è molto rumoroso (alcuni classici valgono quasi 0), quindi si usa la **mediana degli ultimi 7-14 export**.
-  - **Correlazione:** sul catalogo il rango di popolarità e quello dei sitelink hanno correlazione di Spearman 0,63. Sono correlati ma non ridondanti.
-  - **Uso 1, inclusione nel catalogo:** entra un film con sitelink ≥ soglia **oppure** fra i più popolari, purché abbia un elemento Wikidata.
-  - **Uso 2, segnale di base:** una combinazione dei ranghi percentuali, `α·rango(sitelink) + (1−α)·rango(popolarità)`, per le prime carte e per i pari punteggio. **Mai come feature di similarità.**
+   - **Fonte:** l'export giornaliero `https://files.tmdb.org/p/exports/movie_ids_MM_DD_YYYY.json.gz`. Contiene `id`, `original_title`, `popularity`, `adult` e `video` per tutti i film, non richiede chiave API e ogni file resta disponibile 3 mesi.
+   - **Rumore:** un singolo giorno è molto rumoroso (alcuni classici valgono quasi 0), quindi si usa la **mediana degli ultimi 7-14 export**.
+   - **Correlazione:** sul catalogo il rango di popolarità e quello dei sitelink hanno correlazione di Spearman 0,63. Sono correlati ma non ridondanti.
+   - **Uso 1, inclusione nel catalogo:** entra un film con sitelink ≥ soglia **oppure** fra i più popolari, purché abbia un elemento Wikidata.
+   - **Uso 2, segnale di base:** una combinazione dei ranghi percentuali, `α·rango(sitelink) + (1−α)·rango(popolarità)`, per le prime carte e per i pari punteggio. **Mai come feature di similarità.**
 - **Feature:** insiemi di QID, non etichette, così restano indipendenti dalla lingua:
-  - genere (P136), regista (P57), cast (P161), sceneggiatore (P58);
-  - casa di produzione (P272), serie (P179), basato su (P144), soggetto (P921);
-  - paese (P495), lingua originale (P364), compositore (P86), fotografia (P344);
-  - decade da P577, durata (P2047).
+   - genere (P136), regista (P57), cast (P161), sceneggiatore (P58);
+   - casa di produzione (P272), serie (P179), basato su (P144), soggetto (P921);
+   - paese (P495), lingua originale (P364), compositore (P86), fotografia (P344);
+   - decade da P577, durata (P2047).
 - **Output:** un artefatto SQLite **versionato**, con versione dei dati e dello schema, che contiene:
-  - catalogo (QID, id TMDB, sitelink, anno, più la popolarità TMDB come colonna nullable, vuota finché la fonte è disattivata);
-  - tabella delle feature per film;
-  - top-K vicini precalcolati con TF-IDF sulle feature e similarità del coseno (K=64 come nell'originale). Con l'IDF le feature comuni (genere "drammatico", paese "Stati Uniti") pesano poco e quelle rare (regista, saga) pesano molto.
+   - catalogo (QID, id TMDB, sitelink, anno, più la popolarità TMDB come colonna nullable, vuota finché la fonte è disattivata);
+   - tabella delle feature per film;
+   - top-K vicini precalcolati con TF-IDF sulle feature e similarità del coseno (K=64 come nell'originale). Con l'IDF le feature comuni (genere "drammatico", paese "Stati Uniti") pesano poco e quelle rare (regista, saga) pesano molto.
 
-  L'app lo include nel bundle. Il canale di aggiornamento è un punto aperto.
+   L'app lo include nel bundle. Il canale di aggiornamento è un punto aperto.
 
 - **Aggiornare i dati** significa rigenerare l'artefatto: nessuna logica dell'app deve presupporre un catalogo fisso.
 

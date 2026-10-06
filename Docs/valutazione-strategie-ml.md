@@ -4,8 +4,8 @@
 - **Domanda:** quali famiglie di algoritmi di raccomandazione (senza LLM) hanno senso per MoovieFinder, e quando. Va tutto rimandato a dopo la riscrittura?
 - **Input:** l'elenco di 8 famiglie raccolto dall'utente: content-based, collaborative filtering, ibridi e feature-based, deep learning non generativo, grafi, regole di associazione, reinforcement learning, rule-based.
 - **Contesto:**
-  - [valutazione-motore-ml.md](valutazione-motore-ml.md) (vincoli di licenza TMDB);
-  - [CLAUDE.md](../CLAUDE.md) (decisioni: Wikidata per raccomandare, TMDB solo per la UI, motore sul dispositivo).
+   - [valutazione-motore-ml.md](valutazione-motore-ml.md) (vincoli di licenza TMDB);
+   - [CLAUDE.md](../CLAUDE.md) (decisioni: Wikidata per raccomandare, TMDB solo per la UI, motore sul dispositivo).
 - **Limiti:** le dimensioni sono stime. Nessun algoritmo è stato provato sui dati.
 
 ## In breve
@@ -63,10 +63,10 @@ Nel codice sono quattro funzioni pure, non un framework.
 
 - **Embedding.** Una SVD troncata della matrice film × feature TF-IDF, calcolata nella pipeline con numpy o scikit-learn, dà vettori da 32-64 dimensioni per ogni film. È algebra lineare, non una rete neurale. Stima: circa 1,8 MB per 28.600 film in int8.
 - **Bandit.** LinUCB o Thompson lineare, con **un solo modello condiviso** sulle feature del film (embedding, popolarità, decade, durata). Non un "braccio" per film: con 28.600 film non si potrebbe.
-  - Si aggiorna con Sherman-Morrison: una matrice 64×64 per utente, costo trascurabile in TypeScript.
-  - Vowpal Wabbit sul dispositivo non serve.
+   - Si aggiorna con Sherman-Morrison: una matrice 64×64 per utente, costo trascurabile in TypeScript.
+   - Vowpal Wabbit sul dispositivo non serve.
 
-  In pratica è il "learning to rank" dell'elenco, ma addestrato solo sugli swipe di quell'utente.
+   In pratica è il "learning to rank" dell'elenco, ma addestrato solo sugli swipe di quell'utente.
 
 ## Solo se arrivano dati di più utenti
 

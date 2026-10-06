@@ -3,9 +3,9 @@
 - **Data:** 2026-10-05
 - **Commit analizzato:** `2ad7402` (`main`)
 - **Metodo:**
-  - ispezione dei 3 modelli Core ML con `coremltools` (`load_spec`);
-  - conteggio delle API esclusive di iOS nel codice Swift;
-  - analisi della codebase in [analisi-codebase.md](analisi-codebase.md).
+   - ispezione dei 3 modelli Core ML con `coremltools` (`load_spec`);
+   - conteggio delle API esclusive di iOS nel codice Swift;
+   - analisi della codebase in [analisi-codebase.md](analisi-codebase.md).
 - **Limiti:** stime e scelte di librerie sono indicative, non verificate con un prototipo.
 
 ## Verdetto
@@ -52,13 +52,13 @@ L'unico punto in cui l'app perderebbe un po' di resa rispetto a SwiftUI è la tr
 ## Cosa si guadagna oltre ad Android
 
 - **Molti bug del report spariscono con il nuovo design:**
-  - TanStack Query gestisce già retry con limite, deduplica delle richieste e una cache per richiesta: niente più loop infinito né `uiImage` condivisa;
-  - JavaScript ha un solo thread, quindi niente data race;
-  - una sola tabella SQLite, quindi niente righe orfane.
+   - TanStack Query gestisce già retry con limite, deduplica delle richieste e una cache per richiesta: niente più loop infinito né `uiImage` condivisa;
+   - JavaScript ha un solo thread, quindi niente data race;
+   - una sola tabella SQLite, quindi niente righe orfane.
 - **Il formato portabile semplifica la rigenerazione del catalogo.**
-  - I modelli conoscono solo i circa 17 mila film presenti nel 2022.
-  - La pipeline di training non è nel repo.
-  - I punteggi (0,75 / 0,5 / 0,333) fanno pensare a una similarità di Jaccard su generi, keyword e case di produzione: in quel caso uno script Python sui dati TMDB basterebbe a ricostruire le tabelle. È un'inferenza, va verificata.
+   - I modelli conoscono solo i circa 17 mila film presenti nel 2022.
+   - La pipeline di training non è nel repo.
+   - I punteggi (0,75 / 0,5 / 0,333) fanno pensare a una similarità di Jaccard su generi, keyword e case di produzione: in quel caso uno script Python sui dati TMDB basterebbe a ricostruire le tabelle. È un'inferenza, va verificata.
 - **Versione web quasi gratuita** con react-native-web. In quel caso il motore di raccomandazione starebbe meglio lato server.
 - **Chiave API:** in un'app React Native la chiave dentro il bundle resta estraibile. Conviene un piccolo proxy, per esempio una Vercel Function, che aggiunge la chiave lato server.
 

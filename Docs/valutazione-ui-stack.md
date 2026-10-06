@@ -4,9 +4,9 @@
 - **Contesto:** port di MoovieFinder su Expo, vedi [valutazione-porting.md](valutazione-porting.md). Le esigenze di UI vengono da [analisi-codebase.md](analisi-codebase.md).
 - **Metodo:** documentazione ufficiale, README e registry su GitHub, metadati npm (versioni e date), tutto consultato in questa data.
 - **Limiti:**
-  - le stelle GitHub sono solo un indicatore approssimativo di adozione;
-  - le prestazioni dichiarate dai produttori non sono verificate;
-  - non è stato costruito un prototipo.
+   - le stelle GitHub sono solo un indicatore approssimativo di adozione;
+   - le prestazioni dichiarate dai produttori non sono verificate;
+   - non è stato costruito un prototipo.
 
 ## Verdetto
 
@@ -60,10 +60,10 @@ In sintesi:
 - **NativeWind v4:** è la scelta più collaudata, ma su un progetto nuovo a ottobre 2026 significa partire su Tailwind 3 con una migrazione già in programma.
 - **NativeWind v5:** il suo stesso team lo sconsiglia in produzione. Dopo un anno di preview i tempi per la versione stabile non sono prevedibili.
 - **Uniwind:** è stabile, è su Tailwind 4, è più semplice da configurare ed entrambe le librerie di componenti lo supportano. Il "2× più veloce di NativeWind" lo dichiarano loro: non è verificato. Il Pro non serve a quest'app:
-  - le animazioni del mazzo si scrivono direttamente con Reanimated;
-  - l'app ha solo il tema scuro, quindi le transizioni di tema sono inutili.
+   - le animazioni del mazzo si scrivono direttamente con Reanimated;
+   - l'app ha solo il tema scuro, quindi le transizioni di tema sono inutili.
 
-  Il rischio è la community più piccola: si trovano meno risposte già pronte.
+   Il rischio è la community più piccola: si trovano meno risposte già pronte.
 
 ## Prossimo passo consigliato
 

@@ -3,12 +3,12 @@
 - **Data:** 2026-10-05
 - **Commit analizzato:** `2ad7402` (`main`)
 - **Metodo:**
-  - analisi della codebase in [analisi-codebase.md](analisi-codebase.md);
-  - ispezione dei modelli Core ML in [valutazione-porting.md](valutazione-porting.md);
-  - lettura dei termini delle API di TMDB e delle risposte dello staff sul forum (fonti in fondo).
+   - analisi della codebase in [analisi-codebase.md](analisi-codebase.md);
+   - ispezione dei modelli Core ML in [valutazione-porting.md](valutazione-porting.md);
+   - lettura dei termini delle API di TMDB e delle risposte dello staff sul forum (fonti in fondo).
 - **Limiti:**
-  - non è un parere legale: per un uso commerciale va confermato con TMDB;
-  - stime e librerie sono indicative, non verificate con un prototipo.
+   - non è un parere legale: per un uso commerciale va confermato con TMDB;
+   - stime e librerie sono indicative, non verificate con un prototipo.
 
 ## In breve
 
@@ -54,22 +54,22 @@ Flutter e Kotlin Multiplatform hanno opzioni equivalenti.
 ## Il vincolo vero: i termini di TMDB
 
 - **Cosa vietano i termini** (§1.C e §2.A):
-  - usare contenuti TMDB in un'applicazione basata su ML o AI;
-  - addestrare o validare modelli con quei contenuti;
-  - qualunque uso con LLM o chatbot;
-  - conservare in cache i dati TMDB per più di 6 mesi.
+   - usare contenuti TMDB in un'applicazione basata su ML o AI;
+   - addestrare o validare modelli con quei contenuti;
+   - qualunque uso con LLM o chatbot;
+   - conservare in cache i dati TMDB per più di 6 mesi.
 
-  L'uso commerciale richiede sempre un accordo scritto.
+   L'uso commerciale richiede sempre un accordo scritto.
 
 - **Un'interpretazione più stretta, ma informale.** Il 20/07/2026 Travis Bell, dello staff TMDB, ha risposto sul forum a un caso specifico: un progetto di studenti, non commerciale, che calcola similarità con TF-IDF o embedding "non rientra" in ciò che i termini vogliono escludere. È una risposta su un forum, non una regola: non definisce un confine e non copre l'uso commerciale.
 - **Riguarda anche l'app di oggi:**
-  - i 3 modelli Core ML sono stati addestrati sui metadati TMDB nel 2022, prima che i termini cambiassero;
-  - `MoviesApp/Resources/movies.json` contiene 10.000 schede TMDB del 2022 (trama, poster, provider) ed è **pubblico sul fork `LPdsgn/MovieApp`**. Supera il limite di 6 mesi di cache ed è di fatto un dataset pubblicato. L'app non lo usa nemmeno: conviene toglierlo dal repo. Resterebbe comunque nella history di git.
+   - i 3 modelli Core ML sono stati addestrati sui metadati TMDB nel 2022, prima che i termini cambiassero;
+   - `MoviesApp/Resources/movies.json` contiene 10.000 schede TMDB del 2022 (trama, poster, provider) ed è **pubblico sul fork `LPdsgn/MovieApp`**. Supera il limite di 6 mesi di cache ed è di fatto un dataset pubblicato. L'app non lo usa nemmeno: conviene toglierlo dal repo. Resterebbe comunque nella history di git.
 - **Una strada che riduce il rischio:**
-  - il ML si costruisce su **Wikidata**, che è CC0 e ha generi, registi, cast e case di produzione. La proprietà P4947 collega circa 1,4 milioni di elementi agli id TMDB;
-  - TMDB resta solo per mostrare i dati: poster, dettagli e provider.
+   - il ML si costruisce su **Wikidata**, che è CC0 e ha generi, registi, cast e case di produzione. La proprietà P4947 collega circa 1,4 milioni di elementi agli id TMDB;
+   - TMDB resta solo per mostrare i dati: poster, dettagli e provider.
 
-  La clausola "in connection with" però è molto ampia: per un uso commerciale l'accordo scritto con TMDB serve comunque.
+   La clausola "in connection with" però è molto ampia: per un uso commerciale l'accordo scritto con TMDB serve comunque.
 
 ## Raccomandazione
 

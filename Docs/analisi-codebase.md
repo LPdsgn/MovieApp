@@ -38,9 +38,9 @@ DiscoverViewModel → MovieAppModel.shared → NetworkManager.shared → TMDB
 
 - **Navigazione:** una `TabView` con Discover, Watchlist e Settings. La tab Search è commentata.
 - **Raccomandazioni:**
-  - Il punto di partenza sono gli id della watchlist, con valore 1.0. Ogni swipe aggiunge +1 o −1.
-  - Si usa un modello alla volta, a rotazione 6/2/1 (probabilmente doveva essere 6/2/2) e sempre con `k=1`.
-  - La lista dei film esclusi cresce senza limite.
+   - Il punto di partenza sono gli id della watchlist, con valore 1.0. Ogni swipe aggiunge +1 o −1.
+   - Si usa un modello alla volta, a rotazione 6/2/1 (probabilmente doveva essere 6/2/2) e sempre con `k=1`.
+   - La lista dei film esclusi cresce senza limite.
 - **Persistenza:** su Core Data va **solo la watchlist**. Storico, feedback alle raccomandazioni e impostazioni restano in memoria e si perdono al riavvio. Non si usa mai `UserDefaults`.
 - **Concorrenza:** il codice usa async/await, ma nessun ViewModel è `@MainActor` tranne `ImageLoaderViewModel`. Da qui vengono i data race.
 
@@ -69,11 +69,11 @@ DiscoverViewModel → MovieAppModel.shared → NetworkManager.shared → TMDB
 ## Bug funzionali minori
 
 - **Localizzazione:**
-  - la chiave `movie-credits-title` non esiste in nessuna lingua, quindi a schermo compare la chiave grezza (`MovieCredits.swift:15`);
-  - la chiave `"available-to-buy "` ha uno spazio finale nei file `.strings`, quindi non viene trovata;
-  - le etichette affitto/acquisto sono invertite (`MovieProviders.swift:41-55`);
-  - il testo About in tedesco è vuoto;
-  - YEP, NOPE, i dialog di Storage e parte di About sono scritti a mano in inglese.
+   - la chiave `movie-credits-title` non esiste in nessuna lingua, quindi a schermo compare la chiave grezza (`MovieCredits.swift:15`);
+   - la chiave `"available-to-buy "` ha uno spazio finale nei file `.strings`, quindi non viene trovata;
+   - le etichette affitto/acquisto sono invertite (`MovieProviders.swift:41-55`);
+   - il testo About in tedesco è vuoto;
+   - YEP, NOPE, i dialog di Storage e parte di About sono scritti a mano in inglese.
 - **Raccomandazioni:** il feedback viene registrato _dopo_ aver scaricato la carta successiva, quindi ogni raccomandazione ignora l'ultimo swipe. Lo swipe verso la watchlist non finisce nello storico.
 - **Icone dei provider:** possono mostrare l'immagine sbagliata, perché tutte usano un unico `uiImage` condiviso (`DiscoverViewModel.swift:17` → `MovieProviders.swift:106`).
 - **Watchlist:** un film aperto dalla watchlist non mostra provider né crediti, perché viene caricato per un'altra strada.
@@ -82,28 +82,28 @@ DiscoverViewModel → MovieAppModel.shared → NetworkManager.shared → TMDB
 ## Codice morto e duplicato
 
 - **Incompleto o mai usato:**
-  - la tab Search, con dati finti;
-  - `onboarding.swift`: fuori dal target e non compilerebbe;
-  - `SplashScreen`;
-  - `MovieCardDetailsViewModel`, tutto commentato;
-  - le impostazioni Location, Language e Display;
-  - la selezione delle piattaforme di streaming, mai salvata;
-  - i deep link ai provider: fanno solo `print`, anche se gli schemi sono dichiarati in `Info.plist`.
+   - la tab Search, con dati finti;
+   - `onboarding.swift`: fuori dal target e non compilerebbe;
+   - `SplashScreen`;
+   - `MovieCardDetailsViewModel`, tutto commentato;
+   - le impostazioni Location, Language e Display;
+   - la selezione delle piattaforme di streaming, mai salvata;
+   - i deep link ai provider: fanno solo `print`, anche se gli schemi sono dichiarati in `Info.plist`.
 - **Duplicazioni:**
-  - `fetchImage` è copiata due volte;
-  - il caricamento immagini è scritto tre volte;
-  - `sectionHeader` compare tre volte;
-  - i tre gestori di swipe sono copie l'uno dell'altro.
+   - `fetchImage` è copiata due volte;
+   - il caricamento immagini è scritto tre volte;
+   - `sectionHeader` compare tre volte;
+   - i tre gestori di swipe sono copie l'uno dell'altro.
 
 ## Igiene del repo
 
 - **File grandi:**
-  - `MoviesApp/Resources/movies.json` (42 MB) è tracciato da git anche se è in `.gitignore`, non è nel target e non viene usato;
-  - `movies-id-name.json` finisce nel bundle ma nessun codice lo legge;
-  - i 3 file `.mlmodel` (circa 37 MB) sono in git senza LFS.
+   - `MoviesApp/Resources/movies.json` (42 MB) è tracciato da git anche se è in `.gitignore`, non è nel target e non viene usato;
+   - `movies-id-name.json` finisce nel bundle ma nessun codice lo legge;
+   - i 3 file `.mlmodel` (circa 37 MB) sono in git senza LFS.
 - **File di progetto:**
-  - le cartelle `xcuserdata` di 4 utenti sono committate;
-  - `DiscoverHistory.swift` compare due volte nella build phase.
+   - le cartelle `xcuserdata` di 4 utenti sono committate;
+   - `DiscoverHistory.swift` compare due volte nella build phase.
 - **Build:** 32 warning distinti, fra cui gli init Core ML deprecati e 2 avvisi di data race che in Swift 6 diventano errori.
 
 ## Punti di forza

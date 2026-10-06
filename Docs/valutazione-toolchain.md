@@ -6,8 +6,8 @@
 - **Preferenze dell'utente:** lefthook, OXC (oxfmt + oxlint), Prettier + ESLint.
 - **Metodo:** documentazione ufficiale, metadati npm e PyPI, sorgenti su GitHub, ispezione del template Expo SDK 57 e di `eslint-plugin-react-hooks`.
 - **Limiti:**
-  - nessuna configurazione è stata provata;
-  - le prestazioni dichiarate dai produttori non sono verificate.
+   - nessuna configurazione è stata provata;
+   - le prestazioni dichiarate dai produttori non sono verificate.
 
 ## Verdetto
 
@@ -95,34 +95,34 @@ commitlint non può verificare che il subject sia in italiano. Tipi, lunghezza e
 Il repo è pubblico, quindi i runner standard sono gratuiti.
 
 - **`ci.yml`**, su push e PR, con filtri per cartella:
-  - `mobile`: `npm ci` → `prettier --check` → `npx expo lint` → `tsc --noEmit` → jest → `npx expo-doctor`
-  - `pipeline`: `setup-uv` → `uv sync --locked` → `ruff check` → `ruff format --check` → pytest
+   - `mobile`: `npm ci` → `prettier --check` → `npx expo lint` → `tsc --noEmit` → jest → `npx expo-doctor`
+   - `pipeline`: `setup-uv` → `uv sync --locked` → `ruff check` → `ruff format --check` → pytest
 - **`data.yml`**, settimanale e avviabile a mano: esegue la pipeline e produce l'artefatto.
-  - Dove finisce l'artefatto dipende dal punto aperto sul canale di aggiornamento.
-  - In ogni caso **non va committato ogni settimana**: 10 MB o più per 52 settimane gonfiano la history. Meglio un asset di release o un artifact del workflow.
+   - Dove finisce l'artefatto dipende dal punto aperto sul canale di aggiornamento.
+   - In ogni caso **non va committato ogni settimana**: 10 MB o più per 52 settimane gonfiano la history. Meglio un asset di release o un artifact del workflow.
 - **Insidie da conoscere:**
-  - sui fork le Actions sono **disattivate per default**: vanno abilitate dalla tab Actions;
-  - nei repo pubblici i workflow programmati **si disattivano dopo 60 giorni** senza attività sul repo;
-  - i runner condividono gli IP, quindi il 429 di WDQS è probabile. Servono una pipeline che riprende da dove si era fermata, i risultati parziali in `actions/cache` e un User-Agent con contatto letto da una variabile del repo.
+   - sui fork le Actions sono **disattivate per default**: vanno abilitate dalla tab Actions;
+   - nei repo pubblici i workflow programmati **si disattivano dopo 60 giorni** senza attività sul repo;
+   - i runner condividono gli IP, quindi il 429 di WDQS è probabile. Servono una pipeline che riprende da dove si era fermata, i risultati parziali in `actions/cache` e un User-Agent con contatto letto da una variabile del repo.
 
 ## 5. CD: EAS Workflows
 
 - **Struttura:** file in `.eas/workflows/*.yml`, con trigger su `push`, `pull_request` e `schedule`.
 - **Job disponibili:** `fingerprint`, `build`, `repack`, `update`, `update-rollout`, `submit`, `testflight`, `maestro`, `github-comment`, `require-approval` e altri.
 - **Schema di rilascio:** si parte da `fingerprint`.
-  - Se esiste già una build compatibile, basta un **`update` OTA**.
-  - Altrimenti si fa `build` (o `repack`), poi `submit` o `testflight`.
+   - Se esiste già una build compatibile, basta un **`update` OTA**.
+   - Altrimenti si fa `build` (o `repack`), poi `submit` o `testflight`.
 - **Piano gratuito:**
-  - 15 build Android e 15 iOS al mese, coda a bassa priorità, timeout di 45 minuti;
-  - aggiornamenti OTA fino a 1.000 utenti attivi al mese;
-  - **60 minuti al mese di workflow CI/CD**: troppo pochi per i controlli su ogni push. Per questo i controlli girano su GitHub Actions ed EAS fa solo build e aggiornamenti.
+   - 15 build Android e 15 iOS al mese, coda a bassa priorità, timeout di 45 minuti;
+   - aggiornamenti OTA fino a 1.000 utenti attivi al mese;
+   - **60 minuti al mese di workflow CI/CD**: troppo pochi per i controlli su ogni push. Per questo i controlli girano su GitHub Actions ed EAS fa solo build e aggiornamenti.
 
-  Il piano Starter costa 19 $/mese.
+   Il piano Starter costa 19 $/mese.
 
 - **Prerequisiti:**
-  - un account Expo collegato alla GitHub app;
-  - Apple Developer Program per TestFlight e App Store;
-  - un account Google Play Console per il Play Store.
+   - un account Expo collegato alla GitHub app;
+   - Apple Developer Program per TestFlight e App Store;
+   - un account Google Play Console per il Play Store.
 
 ## Ordine allo scaffolding
 

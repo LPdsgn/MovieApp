@@ -1,53 +1,53 @@
 {
-  "expo": {
-    "name": "MoovieFinder",
-    "slug": "mooviefinder",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "mooviefinder",
-    "userInterfaceStyle": "dark",
-    "assetBundlePatterns": ["**/*"],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "dev.luigipdt.mooviefinder",
-      "infoPlist": {
-        "UISupportedInterfaceOrientations~iphone": ["UIInterfaceOrientationPortrait"],
-        "UISupportedInterfaceOrientations~ipad": [
-          "UIInterfaceOrientationPortrait",
-          "UIInterfaceOrientationPortraitUpsideDown",
-          "UIInterfaceOrientationLandscapeLeft",
-          "UIInterfaceOrientationLandscapeRight"
-        ]
-      }
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#2E2E2E"
-      },
-      "package": "dev.luigipdt.mooviefinder"
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash.png",
-          "resizeMode": "contain",
-          "backgroundColor": "#1F1F1F"
-        }
-      ],
-      "expo-status-bar"
-    ],
-    "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
-    }
-  }
+	"expo": {
+		"name": "MoovieFinder",
+		"slug": "mooviefinder",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./assets/images/icon.png",
+		"scheme": "mooviefinder",
+		"userInterfaceStyle": "dark",
+		"assetBundlePatterns": ["**/*"],
+		"ios": {
+			"supportsTablet": true,
+			"bundleIdentifier": "dev.luigipdt.mooviefinder",
+			"infoPlist": {
+				"UISupportedInterfaceOrientations~iphone": ["UIInterfaceOrientationPortrait"],
+				"UISupportedInterfaceOrientations~ipad": [
+					"UIInterfaceOrientationPortrait",
+					"UIInterfaceOrientationPortraitUpsideDown",
+					"UIInterfaceOrientationLandscapeLeft",
+					"UIInterfaceOrientationLandscapeRight"
+				]
+			}
+		},
+		"android": {
+			"adaptiveIcon": {
+				"foregroundImage": "./assets/images/adaptive-icon.png",
+				"backgroundColor": "#2E2E2E"
+			},
+			"package": "dev.luigipdt.mooviefinder"
+		},
+		"web": {
+			"bundler": "metro",
+			"output": "static",
+			"favicon": "./assets/images/favicon.png"
+		},
+		"plugins": [
+			"expo-router",
+			[
+				"expo-splash-screen",
+				{
+					"image": "./assets/images/splash.png",
+					"resizeMode": "contain",
+					"backgroundColor": "#1F1F1F"
+				}
+			],
+			"expo-status-bar"
+		],
+		"experiments": {
+			"typedRoutes": true,
+			"reactCompiler": true
+		}
+	}
 }
