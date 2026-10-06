@@ -23,6 +23,7 @@ Documenti in `docs/`:
 - `valutazione-strategie-ml.md`: quali famiglie di algoritmi di raccomandazione sono adatte, e quando.
 - `valutazione-toolchain.md`: lint, format, hook e CI/CD, e perché ESLint + Prettier invece di OXC.
 - `wikidata-api.md`: parametri di WDQS e `wbgetentities` che usa la pipeline, e i comportamenti scoperti misurando.
+- `campioni-vicini.md`: vicini TF-IDF di film noti, misurati, da confrontare in fase di test.
 
 Il passo "esportare le tabelle Core ML" di `valutazione-porting.md` è **superato** dalla decisione su Wikidata (vedi sotto).
 
