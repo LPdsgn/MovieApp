@@ -144,9 +144,7 @@ Motivazioni in `docs/valutazione-toolchain.md`.
 Va implementata da subito. Produce i dati del motore di raccomandazione v1, che non usa reti neurali.
 
 - **Sorgente:** SPARQL su `query.wikidata.org`.
-   - **Timeout di 60 s.** Il solo conteggio dei film con P4947 e almeno 10 sitelink impiega circa 30 s, quindi le query vanno spezzate. Due modi:
-      - partizionare per anno (P577);
-      - raccogliere i QID e poi scaricare le entità a blocchi con `wbgetentities` (50 id per richiesta).
+   - **Timeout di 60 s.** La query del catalogo (QID, id TMDB, sitelink ≥ 10, nessun'altra proprietà) impiega circa 30 s (misurato il 06/10/2026). Tutto il resto si scarica a blocchi con `wbgetentities` (50 id per richiesta), non con altre query SPARQL. Partizionare per anno (P577) non conviene: il filtro `YEAR()` non usa indici e ogni anno costa quanto la query intera.
    - **User-Agent:** la policy Wikimedia richiede un User-Agent descrittivo con un contatto. Va letto da una variabile d'ambiente, senza email personali nel codice.
    - **Limiti di frequenza:** WDQS può limitare in modo drastico. Il 05/10/2026 ha risposto HTTP 429, "1 req / min", durante un disservizio. La pipeline deve:
       - rispettare `Retry-After` e riprovare con attese crescenti;
