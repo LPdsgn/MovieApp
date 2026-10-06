@@ -57,3 +57,17 @@ def test_retry_delay_prefers_retry_after():
     assert wikidata.retry_delay(resp, attempt=0) == 60
     assert wikidata.retry_delay(None, attempt=3) == 8
     assert wikidata.retry_delay(None, attempt=20) == 120
+
+
+def test_entities_keys_redirects_by_original_qid():
+    payload = {
+        "entities": {
+            "Q2": {"id": "Q2", "redirects": {"from": "Q1", "to": "Q2"}, "claims": {}},
+            "Q3": {"id": "Q3", "missing": ""},
+        }
+    }
+    http = httpx.Client(
+        transport=httpx.MockTransport(lambda req: httpx.Response(200, json=payload))
+    )
+    found = wikidata.entities([1, 3], http)
+    assert set(found) == {"Q1", "Q2"}

@@ -87,4 +87,9 @@ def entities(qids: list[int], http: httpx.Client | None = None) -> dict[str, Any
         },
         http,
     )
-    return {k: v for k, v in data.get("entities", {}).items() if "missing" not in v}
+    found = {k: v for k, v in data.get("entities", {}).items() if "missing" not in v}
+    # Un QID unito a un altro torna sotto la chiave di destinazione: lo rimettiamo sotto l'originale.
+    for entity in list(found.values()):
+        if "redirects" in entity:
+            found[entity["redirects"]["from"]] = entity
+    return found
