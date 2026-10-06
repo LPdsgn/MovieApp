@@ -28,7 +28,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#1F1F1F"
+        "backgroundColor": "#2E2E2E"
       },
       "package": "dev.luigipdt.mooviefinder"
     },
