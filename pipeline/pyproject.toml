@@ -7,7 +7,9 @@ authors = [
     { name = "LPdsgn", email = "86961265+LPdsgn@users.noreply.github.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "httpx>=0.28.1",
+]
 
 [project.scripts]
 moovie-pipeline = "moovie_pipeline:main"
