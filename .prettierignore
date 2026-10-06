@@ -8,3 +8,8 @@ uv.lock
 mobile/uniwind-types.d.ts
 mobile/.expo/
 mobile/dist/
+
+# Markdown nelle cartelle di configurazione degli agenti AI (skill di terzi)
+.agents/**/*.md
+.claude/**/*.md
+.pi/**/*.md
