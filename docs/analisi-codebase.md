@@ -3,7 +3,7 @@
 - **Data:** 2026-10-05
 - **Commit analizzato:** `2ad7402` (`main`)
 - **Metodo:** lettura statica del codice e build con Xcode 16.2 sul simulatore iOS. Ho verificato a mano i punti più gravi. Il resto viene dalla lettura del codice: l'app non è stata eseguita.
-- **Riferimenti:** nel formato `file:riga`. I nomi dei file sono univoci nel target `MoviesApp/`.
+- **Riferimenti:** nel formato `file:riga`. I nomi dei file sono univoci nel target `swift/MoviesApp/`.
 
 ## In sintesi
 
@@ -98,7 +98,7 @@ DiscoverViewModel → MovieAppModel.shared → NetworkManager.shared → TMDB
 ## Igiene del repo
 
 - **File grandi:**
-   - `MoviesApp/Resources/movies.json` (42 MB) è tracciato da git anche se è in `.gitignore`, non è nel target e non viene usato;
+   - `swift/MoviesApp/Resources/movies.json` (42 MB) è tracciato da git anche se è in `.gitignore`, non è nel target e non viene usato;
    - `movies-id-name.json` finisce nel bundle ma nessun codice lo legge;
    - i 3 file `.mlmodel` (circa 37 MB) sono in git senza LFS.
 - **File di progetto:**

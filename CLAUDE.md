@@ -6,14 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 MoovieFinder è un'app per scoprire film con lo swipe. Il repo è in fase di **riscrittura da iOS nativo (Swift) a React Native + Expo**.
 
-| Percorso                                                  | Contenuto                                                   | Regola                                                                    |
-| --------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `MoviesApp/`, `MoviesApp.xcodeproj/`, `*.mlmodel` in root | App Swift originale (2022)                                  | **Solo riferimento, non si modifica.** È la specifica funzionale e visiva |
-| `Docs/`                                                   | Analisi e valutazioni da cui nascono le decisioni qui sotto | Leggerle prima di decisioni architetturali                                |
-| `mobile/`                                                 | App Expo (SDK 57), unico pacchetto del workspace pnpm       | —                                                                         |
-| `pipeline/`                                               | Pipeline dati Wikidata in Python, progetto `uv`             | —                                                                         |
+| Percorso    | Contenuto                                                   | Regola                                                                    |
+| ----------- | ----------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `swift/`    | App Swift originale (2022)                                  | **Solo riferimento, non si modifica.** È la specifica funzionale e visiva |
+| `docs/`     | Analisi e valutazioni da cui nascono le decisioni qui sotto | Leggerle prima di decisioni architetturali                                |
+| `mobile/`   | App Expo (SDK 57), unico pacchetto del workspace pnpm       | —                                                                         |
+| `pipeline/` | Pipeline dati Wikidata in Python, progetto `uv`             | —                                                                         |
 
-Documenti in `Docs/`:
+Documenti in `docs/`:
 
 - `analisi-codebase.md`: com'è fatta l'app Swift e i suoi bug.
 - `valutazione-porting.md`: mappa iOS → Expo e stima.
@@ -29,7 +29,7 @@ Il passo "esportare le tabelle Core ML" di `valutazione-porting.md` è **superat
 App Swift di riferimento (compila con Xcode 16.2, circa 32 warning noti):
 
 ```bash
-xcodebuild -project MoviesApp.xcodeproj -scheme MoviesApp \
+xcodebuild -project swift/MoviesApp.xcodeproj -scheme MoviesApp \
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 ```
 
@@ -72,8 +72,8 @@ uv run pytest tests/test_x.py::test_nome  # un solo test
 - TanStack Query per le chiamate di rete.
 - `expo-sqlite` per i dati locali.
 - `expo-image` per le immagini.
-- Tema solo scuro, come l'originale. I colori di partenza sono i colorset in `MoviesApp/Assets.xcassets/`.
-- Lingue it, en, de, come l'originale. Nei `.strings` originali ci sono chiavi rotte, documentate in `Docs/analisi-codebase.md`.
+- Tema solo scuro, come l'originale. I colori di partenza sono i colorset in `swift/MoviesApp/Assets.xcassets/`.
+- Lingue it, en, de, come l'originale. Nei `.strings` originali ci sono chiavi rotte, documentate in `docs/analisi-codebase.md`.
 
 Perimetro v1 = le funzioni che oggi funzionano:
 
@@ -86,7 +86,7 @@ Fuori dalla v1, perché nell'originale erano morte: Search, onboarding, location
 
 ## Toolchain
 
-Motivazioni in `Docs/valutazione-toolchain.md`.
+Motivazioni in `docs/valutazione-toolchain.md`.
 
 | Area      | Strumento                                                                                                                                                           | Dove                    |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
@@ -131,10 +131,10 @@ Motivazioni in `Docs/valutazione-toolchain.md`.
    - La pipeline non usa TMDB. L'unica eccezione è la colonna opzionale di popolarità (vedi Pipeline), che resta **disattivata** finché non c'è un accordo scritto con TMDB.
    - Su disco l'app salva solo id, mai contenuti TMDB.
 - **Wikidata (CC0)** è l'unica fonte di catalogo e feature. Il collegamento ai film TMDB passa dalla proprietà **P4947** (TMDB movie ID).
-- **Chiave TMDB mai nel client.** Le chiamate passano da un proxy che aggiunge la chiave lato server. La chiave in `MoviesApp/Models/NetworkManager.swift` è pubblica e va considerata compromessa.
+- **Chiave TMDB mai nel client.** Le chiamate passano da un proxy che aggiunge la chiave lato server. La chiave in `swift/MoviesApp/Models/NetworkManager.swift` è pubblica e va considerata compromessa.
 - **Non portare né derivare dati dai file dell'app originale:**
    - i 3 `.mlmodel` sono stati addestrati su metadati TMDB;
-   - `MoviesApp/Resources/movies.json` e `movies-id-name.json` sono dump TMDB.
+   - `swift/MoviesApp/Resources/movies-id-name.json` è un dump TMDB, come lo era `movies.json`, rimosso dal repo ma ancora nella history.
 - **Attribuzioni obbligatorie in UI:**
    - TMDB (logo + avviso "not endorsed or certified by TMDB");
    - JustWatch per i dati dei provider (requisito dell'endpoint `/watch/providers`).
@@ -181,7 +181,7 @@ Va implementata da subito. Produce i dati del motore di raccomandazione v1, che 
 
 ## Motore di raccomandazione
 
-Motivazioni in `Docs/valutazione-strategie-ml.md`.
+Motivazioni in `docs/valutazione-strategie-ml.md`.
 
 **Cosa si può fare dipende dai dati.** Abbiamo le feature Wikidata e gli swipe di un solo utente, sul suo dispositivo. Mancano le interazioni di molti utenti, quindi collaborative filtering, LightFM, learning to rank e deep learning restano fuori.
 
@@ -221,7 +221,7 @@ Questi modelli producono vicini o embedding per film, quindi entrano nell'artefa
 
 ## Errori dell'app originale da non ripetere
 
-Dettagli e riferimenti in `Docs/analisi-codebase.md`.
+Dettagli e riferimenti in `docs/analisi-codebase.md`.
 
 - **Swipe persi o applicati tardi.** Gli swipe non venivano salvati e il feedback arrivava dopo il fetch della carta successiva. Va salvato e applicato _prima_.
 - **Segnaposto al posto degli errori.** Su errore si restituiva un film segnaposto (`Movie.example`), che causava un loop infinito di richieste. Gli errori devono essere espliciti e i retry limitati.

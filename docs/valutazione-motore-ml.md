@@ -64,7 +64,7 @@ Flutter e Kotlin Multiplatform hanno opzioni equivalenti.
 - **Un'interpretazione più stretta, ma informale.** Il 20/07/2026 Travis Bell, dello staff TMDB, ha risposto sul forum a un caso specifico: un progetto di studenti, non commerciale, che calcola similarità con TF-IDF o embedding "non rientra" in ciò che i termini vogliono escludere. È una risposta su un forum, non una regola: non definisce un confine e non copre l'uso commerciale.
 - **Riguarda anche l'app di oggi:**
    - i 3 modelli Core ML sono stati addestrati sui metadati TMDB nel 2022, prima che i termini cambiassero;
-   - `MoviesApp/Resources/movies.json` contiene 10.000 schede TMDB del 2022 (trama, poster, provider) ed è **pubblico sul fork `LPdsgn/MovieApp`**. Supera il limite di 6 mesi di cache ed è di fatto un dataset pubblicato. L'app non lo usa nemmeno: conviene toglierlo dal repo. Resterebbe comunque nella history di git.
+   - `swift/MoviesApp/Resources/movies.json` contiene 10.000 schede TMDB del 2022 (trama, poster, provider) ed è **pubblico sul fork `LPdsgn/MovieApp`**. Supera il limite di 6 mesi di cache ed è di fatto un dataset pubblicato. L'app non lo usa nemmeno: conviene toglierlo dal repo. Resterebbe comunque nella history di git.
 - **Una strada che riduce il rischio:**
    - il ML si costruisce su **Wikidata**, che è CC0 e ha generi, registi, cast e case di produzione. La proprietà P4947 collega circa 1,4 milioni di elementi agli id TMDB;
    - TMDB resta solo per mostrare i dati: poster, dettagli e provider.
