@@ -3,6 +3,8 @@ packages:
 
 allowBuilds:
    unrs-resolver: true
+   # gli hook li installa lo script prepare di root, non il postinstall del pacchetto
+   lefthook: false
 
 minimumReleaseAgeExclude:
    - '@expo/cli@57.0.28'

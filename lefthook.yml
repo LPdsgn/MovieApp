@@ -1,0 +1,45 @@
+# Hook git, installati da `pnpm install` (script prepare di root).
+# I glob si calcolano sempre dalla root del repo; `root` cambia solo la cartella di lavoro.
+
+pre-commit:
+   # In sequenza: Prettier ed ESLint --fix scrivono sugli stessi file
+   jobs:
+      - name: prettier
+        run: pnpm exec prettier --write --ignore-unknown {staged_files}
+        stage_fixed: true
+
+      - name: eslint
+        root: mobile/
+        glob: 'mobile/**/*.{js,jsx,ts,tsx}'
+        run: pnpm exec eslint --fix {staged_files}
+        stage_fixed: true
+
+      - name: typecheck
+        root: mobile/
+        glob: 'mobile/**/*.{ts,tsx}'
+        run: pnpm typecheck
+
+      - name: ruff
+        root: pipeline/
+        glob: 'pipeline/**/*.py'
+        run: uv run ruff format {staged_files} && uv run ruff check --fix {staged_files}
+        stage_fixed: true
+
+commit-msg:
+   jobs:
+      - name: commitlint
+        run: pnpm exec commitlint --edit {1}
+
+pre-push:
+   parallel: true
+   jobs:
+      - name: jest
+        root: mobile/
+        glob: 'mobile/**/*'
+        run: pnpm test
+
+      - name: pytest
+        root: pipeline/
+        glob: 'pipeline/**/*'
+        # ponytail: exit 5 = nessun test raccolto, tollerato finché la pipeline non ha test; togliere al primo test
+        run: uv run pytest || [ $? -eq 5 ]
