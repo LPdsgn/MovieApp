@@ -2,7 +2,7 @@ import argparse
 import logging
 from pathlib import Path
 
-from . import catalog, features
+from . import catalog, features, neighbors
 
 
 def main() -> None:
@@ -11,6 +11,7 @@ def main() -> None:
     for name, doc in (
         ("catalog", "catalogo dei film da Wikidata"),
         ("features", "catalogo + date, durate e feature da wbgetentities"),
+        ("neighbors", "catalogo + feature + top-K vicini (TF-IDF, coseno)"),
     ):
         cmd = sub.add_parser(name, help=doc)
         cmd.add_argument("--min-sitelinks", type=int, default=10)
@@ -26,3 +27,6 @@ def main() -> None:
     elif args.command == "features":
         n = features.build(args.out, args.min_sitelinks, args.cache_dir)
         print(f"{n} feature in {args.out}")
+    elif args.command == "neighbors":
+        n = neighbors.build(args.out, args.min_sitelinks, args.cache_dir)
+        print(f"{n} vicini in {args.out}")
