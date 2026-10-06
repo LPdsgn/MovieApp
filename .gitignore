@@ -1,3 +1,9 @@
 .DS_Store
 movies.json
 node_modules/
+
+# Python (pipeline/)
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
