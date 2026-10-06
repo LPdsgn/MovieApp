@@ -1,0 +1,12 @@
+# Copia in proxy/.dev.vars (ignorato da git) per `pnpm --filter proxy dev`.
+# In produzione: `pnpm --filter proxy exec wrangler secret put TMDB_TOKEN`.
+#
+# TMDB_TOKEN accetta uno dei due formati, da https://www.themoviedb.org/settings/api:
+#
+#   chiave v3 "API Key": 32 caratteri esadecimali, inviata come ?api_key=
+#     TMDB_TOKEN=0123456789abcdef0123456789abcdef
+#
+#   token v4 "API Read Access Token": JWT che inizia con eyJ, inviato come Authorization: Bearer
+#     TMDB_TOKEN=eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMTIzNDU2Nzg5YWJjZGVmIn0.firma
+
+TMDB_TOKEN=

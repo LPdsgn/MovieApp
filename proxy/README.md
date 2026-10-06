@@ -12,7 +12,8 @@ Le immagini non passano di qui: gli URL di `image.tmdb.org` non richiedono chiav
 pnpm --filter proxy test        # node --test, nessuna dipendenza
 pnpm --filter proxy typecheck
 pnpm --filter proxy dev         # locale su http://localhost:8787, legge .dev.vars
-pnpm --filter proxy deploy      # richiede `pnpm --filter proxy exec wrangler login`
+pnpm --filter proxy release     # wrangler deploy; richiede `pnpm --filter proxy exec wrangler login`
+                                # (lo script non si chiama `deploy`: è un comando interno di pnpm)
 ```
 
 ## Secret
@@ -20,6 +21,6 @@ pnpm --filter proxy deploy      # richiede `pnpm --filter proxy exec wrangler lo
 `TMDB_TOKEN` accetta la chiave v3 (32 esadecimali, passata come `api_key`) o il token di lettura v4 (JWT, passato come `Authorization: Bearer`).
 
 ```bash
-echo "TMDB_TOKEN=..." > proxy/.dev.vars                       # locale, ignorato da git
+cp proxy/.dev.vars.example proxy/.dev.vars                   # locale, ignorato da git: compila TMDB_TOKEN
 pnpm --filter proxy exec wrangler secret put TMDB_TOKEN      # produzione
 ```

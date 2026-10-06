@@ -62,7 +62,7 @@ pnpm dlx @react-native-reusables/cli@latest add switch alert-dialog --styling-li
 pnpm test                     # node --test, senza dipendenze
 pnpm typecheck                # tsc --noEmit con @cloudflare/workers-types
 pnpm dev                      # wrangler dev su localhost:8787, legge proxy/.dev.vars
-pnpm deploy                   # wrangler deploy; prima `pnpm exec wrangler login` e `wrangler secret put TMDB_TOKEN`
+pnpm release                  # wrangler deploy (non `deploy`: è un comando interno di pnpm); prima `wrangler login` e `wrangler secret put TMDB_TOKEN`
 ```
 
 `pipeline/` (da `pipeline/`, con `MOOVIE_USER_AGENT` impostata):
