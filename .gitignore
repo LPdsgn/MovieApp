@@ -11,3 +11,7 @@ __pycache__/
 # Pipeline: cache delle query e artefatto generato
 pipeline/.cache/
 pipeline/dist/
+
+# Proxy: secret locali e cache di wrangler
+proxy/.dev.vars
+proxy/.wrangler/

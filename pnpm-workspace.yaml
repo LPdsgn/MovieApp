@@ -1,8 +1,12 @@
 packages:
    - mobile
+   - proxy
 
 allowBuilds:
    unrs-resolver: true
+   # wrangler: esbuild e workerd scaricano il binario nativo nel postinstall
+   esbuild: true
+   workerd: true
    # gli hook li installa lo script prepare di root, non il postinstall del pacchetto
    lefthook: false
 

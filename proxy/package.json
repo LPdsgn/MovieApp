@@ -1,0 +1,16 @@
+{
+	"name": "proxy",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy",
+		"typecheck": "tsc --noEmit",
+		"test": "node --test 'src/**/*.test.js'"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20260101.0",
+		"typescript": "~6.0.3",
+		"wrangler": "^4.0.0"
+	}
+}

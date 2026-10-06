@@ -1,0 +1,8 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "mooviefinder-tmdb-proxy",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-10-01",
+	// Il secret TMDB_TOKEN si imposta con `wrangler secret put TMDB_TOKEN`; in locale va in .dev.vars
+	"observability": { "enabled": true },
+}
