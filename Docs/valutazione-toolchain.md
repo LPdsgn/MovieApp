@@ -2,6 +2,7 @@
 
 - **Data:** 2026-10-05 (versioni, stato dei progetti e prezzi rilevati in questa data).
 - **Aggiornamento del 2026-10-06:** il verdetto su lint e format è passato da OXC a **ESLint + Prettier**. Il motivo è il React Compiler (sezione 1). Python, hook, CI e CD restano com'erano.
+- **Aggiornamento allo scaffolding (2026-10-06):** package manager **pnpm** (solo pnpm, workspace in `pnpm-workspace.yaml`) al posto di npm; ESLint fissato a `^9` perché `eslint-plugin-react` 7 non funziona con ESLint 10; CI per ora solo su pull request e avvio manuale. Lo stato effettivo è in [CLAUDE.md](../CLAUDE.md).
 - **Contesto:** strumenti da introdurre insieme allo scaffolding di `mobile/` (Expo) e `pipeline/` (Python + uv), vedi [CLAUDE.md](../CLAUDE.md).
 - **Preferenze dell'utente:** lefthook, OXC (oxfmt + oxlint), Prettier + ESLint.
 - **Metodo:** documentazione ufficiale, metadati npm e PyPI, sorgenti su GitHub, ispezione del template Expo SDK 57 e di `eslint-plugin-react-hooks`.
@@ -13,12 +14,12 @@
 
 | Area                 | Scelta                                                                               |
 | -------------------- | ------------------------------------------------------------------------------------ |
-| Lint JS/TS           | **ESLint** con `eslint-config-expo` 57 (`npx expo lint`)                             |
+| Lint JS/TS           | **ESLint** con `eslint-config-expo` 57 (`expo lint`)                                 |
 | Format               | **Prettier** 3.9 + `prettier-plugin-tailwindcss` + `eslint-config-prettier`          |
 | Typecheck            | **TypeScript 6.0.3**, come nel template Expo (`tsc --noEmit`)                        |
 | Python (`pipeline/`) | **ruff** (lint + format) + **pytest**                                                |
 | Hook                 | **lefthook** + **commitlint**                                                        |
-| CI                   | **GitHub Actions**: controlli su push/PR e pipeline dati programmata                 |
+| CI                   | **GitHub Actions**: controlli su PR e avvio manuale, pipeline dati programmata       |
 | CD                   | **EAS Workflows**, da attivare alla prima build da distribuire, non allo scaffolding |
 
 OXC (oxlint + oxfmt) va rivalutato più avanti: la sezione 1 indica a quali condizioni.
@@ -74,12 +75,12 @@ Due cose da sapere se si passa a OXC:
 
 lefthook 2.1.17 è disponibile sia su npm sia su PyPI.
 
-Propongo un `package.json` in root come radice di workspace npm (`"workspaces": ["mobile"]`). Expo supporta i workspace in modo nativo (npm, Bun, pnpm, Yarn) e configura Metro da solo dalla SDK 52. Con un `npm install` vengono installati anche gli hook.
+Il `package.json` di root è la radice del workspace **pnpm** (`pnpm-workspace.yaml` con `packages: [mobile]` e `nodeLinker: hoisted`). Expo supporta i workspace in modo nativo (npm, Bun, pnpm, Yarn) e configura Metro da solo dalla SDK 52. Gli hook li installa lo script `prepare` di root (`lefthook install`), eseguito dal primo `pnpm install`: il postinstall del pacchetto lefthook è disattivato in `allowBuilds`.
 
 Dove stanno gli strumenti:
 
 - **Root:** lefthook, commitlint e Prettier. Prettier formatta tutto il repo (codice, Markdown, YAML, JSON) con un'unica configurazione, e `tailwindStylesheet` è relativo a quel file.
-- **`mobile/`:** ESLint (`eslint.config.js` generato da `npx expo lint`) e TypeScript.
+- **`mobile/`:** ESLint (`eslint.config.js` come da guida Expo per `expo lint`, ESLint fissato a `^9`) e TypeScript.
 
 | Hook         | Cosa esegue                                                                                     | Quando                                    |
 | ------------ | ----------------------------------------------------------------------------------------------- | ----------------------------------------- |
@@ -94,8 +95,8 @@ commitlint non può verificare che il subject sia in italiano. Tipi, lunghezza e
 
 Il repo è pubblico, quindi i runner standard sono gratuiti.
 
-- **`ci.yml`**, su push e PR, con filtri per cartella:
-   - `mobile`: `npm ci` → `prettier --check` → `npx expo lint` → `tsc --noEmit` → jest → `npx expo-doctor`
+- **`ci.yml`**, per ora solo su pull request e avvio manuale (`workflow_dispatch`), senza filtri per cartella:
+   - `mobile`: `pnpm install --frozen-lockfile` → `prettier --check` → `expo lint` → `tsc --noEmit` → jest → `pnpm dlx expo-doctor`
    - `pipeline`: `setup-uv` → `uv sync --locked` → `ruff check` → `ruff format --check` → pytest
 - **`data.yml`**, settimanale e avviabile a mano: esegue la pipeline e produce l'artefatto.
    - Dove finisce l'artefatto dipende dal punto aperto sul canale di aggiornamento.
@@ -126,10 +127,10 @@ Il repo è pubblico, quindi i runner standard sono gratuiti.
 
 ## Ordine allo scaffolding
 
-1. `package.json` di root con workspace, poi `mobile/` creato con il template `minimal-uniwind`.
+1. `package.json` di root con workspace pnpm, poi `mobile/` creato con il template `minimal-uniwind`.
 2. TypeScript: si tiene la versione del template (6.0.3).
 3. Lint e format:
-   - `npx expo lint` in `mobile/`, più `eslint-config-prettier`;
+   - ESLint 9 con `eslint-config-expo` in `mobile/`, più `eslint-config-prettier`;
    - Prettier in root con `prettier-plugin-tailwindcss` e `tailwindStylesheet` puntato al CSS di Uniwind.
 4. `pyproject.toml` di `pipeline/` con ruff e pytest.
 5. `lefthook.yml` e config di commitlint.
