@@ -52,6 +52,10 @@ def create(path: Path) -> sqlite3.Connection:
     return conn
 
 
+def connect(path: Path) -> sqlite3.Connection:
+    return sqlite3.connect(path)
+
+
 def set_meta(conn: sqlite3.Connection, **values: object) -> None:
     conn.executemany(
         "INSERT OR REPLACE INTO meta VALUES (?, ?)",
