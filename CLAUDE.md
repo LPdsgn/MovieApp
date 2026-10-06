@@ -21,6 +21,7 @@ Documenti in `docs/`:
 - `valutazione-ui-stack.md`: perché React Native Reusables + Uniwind.
 - `valutazione-strategie-ml.md`: quali famiglie di algoritmi di raccomandazione sono adatte, e quando.
 - `valutazione-toolchain.md`: lint, format, hook e CI/CD, e perché ESLint + Prettier invece di OXC.
+- `wikidata-api.md`: parametri di WDQS e `wbgetentities` che usa la pipeline, e i comportamenti scoperti misurando.
 
 Il passo "esportare le tabelle Core ML" di `valutazione-porting.md` è **superato** dalla decisione su Wikidata (vedi sotto).
 
