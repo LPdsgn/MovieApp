@@ -10,7 +10,8 @@ MoovieFinder è un'app per scoprire film con lo swipe. Il repo è in fase di **r
 | ----------- | ----------------------------------------------------------- | ------------------------------------------------------------------------- |
 | `swift/`    | App Swift originale (2022)                                  | **Solo riferimento, non si modifica.** È la specifica funzionale e visiva |
 | `docs/`     | Analisi e valutazioni da cui nascono le decisioni qui sotto | Leggerle prima di decisioni architetturali                                |
-| `mobile/`   | App Expo (SDK 57), unico pacchetto del workspace pnpm       | —                                                                         |
+| `mobile/`   | App Expo (SDK 57), pacchetto del workspace pnpm             | —                                                                         |
+| `proxy/`    | Proxy TMDB su Cloudflare Workers, pacchetto del workspace   | Unico posto dove vive la chiave TMDB                                      |
 | `pipeline/` | Pipeline dati Wikidata in Python, progetto `uv`             | —                                                                         |
 
 Documenti in `docs/`:
@@ -55,12 +56,21 @@ pnpm dlx expo-doctor                    # controllo di coerenza del progetto Exp
 pnpm dlx @react-native-reusables/cli@latest add switch alert-dialog --styling-library uniwind
 ```
 
-`pipeline/` (da `pipeline/`):
+`proxy/` (dalla root con `pnpm --filter proxy <script>`):
 
 ```bash
-uv run moovie-pipeline        # entry point della pipeline
+pnpm test                     # node --test, senza dipendenze
+pnpm typecheck                # tsc --noEmit con @cloudflare/workers-types
+pnpm dev                      # wrangler dev su localhost:8787, legge proxy/.dev.vars
+pnpm deploy                   # wrangler deploy; prima `pnpm exec wrangler login` e `wrangler secret put TMDB_TOKEN`
+```
+
+`pipeline/` (da `pipeline/`, con `MOOVIE_USER_AGENT` impostata):
+
+```bash
+uv run moovie-pipeline catalog|features|neighbors   # ogni stadio include i precedenti, legge dalla cache
 uv run ruff check . && uv run ruff format .
-uv run pytest                 # exit 5 = nessun test raccolto
+uv run pytest
 uv run pytest tests/test_x.py::test_nome  # un solo test
 ```
 
@@ -113,9 +123,9 @@ Motivazioni in `docs/valutazione-toolchain.md`.
 - **`mobile/expo-types.d.ts`** contiene il riferimento a `expo/types` (per esempio `*.css`), perché `expo-env.d.ts` è generato da `expo start` ed escluso da git. Senza, il typecheck fallisce in CI e negli hook.
 - **Classi Tailwind:** i colori del tema Uniwind stanno in `@layer theme`, non in `@theme`, quindi per Tailwind sono classi sconosciute e Prettier le mette in testa. È normale.
 - **Hook:**
-   - `pre-commit`: Prettier, ESLint `--fix` e ruff sui file in stage, più `tsc --noEmit` se cambia `mobile/`;
+   - `pre-commit`: Prettier, ESLint `--fix` e ruff sui file in stage, più `tsc --noEmit` se cambia `mobile/` o `proxy/`;
    - `commit-msg`: commitlint;
-   - `pre-push`: jest o pytest, a seconda della cartella toccata.
+   - `pre-push`: jest, `node --test` o pytest, a seconda della cartella toccata.
 - **CI e CD:** i controlli girano su GitHub Actions, gratuite su un repo pubblico. EAS fa solo build e aggiornamenti, perché il piano gratuito include appena 60 minuti al mese di workflow.
 - **Trigger della CI:** per ora solo `pull_request` e avvio manuale (`workflow_dispatch`), niente trigger su push.
 - **Insidie della CI:**
@@ -132,7 +142,7 @@ Motivazioni in `docs/valutazione-toolchain.md`.
    - La pipeline non usa TMDB. L'unica eccezione è la colonna opzionale di popolarità (vedi Pipeline), che resta **disattivata** finché non c'è un accordo scritto con TMDB.
    - Su disco l'app salva solo id, mai contenuti TMDB.
 - **Wikidata (CC0)** è l'unica fonte di catalogo e feature. Il collegamento ai film TMDB passa dalla proprietà **P4947** (TMDB movie ID).
-- **Chiave TMDB mai nel client.** Le chiamate passano da un proxy che aggiunge la chiave lato server. La chiave in `swift/MoviesApp/Models/NetworkManager.swift` è pubblica e va considerata compromessa.
+- **Chiave TMDB mai nel client.** Le chiamate passano dal proxy in `proxy/` (Cloudflare Workers), che aggiunge la chiave lato server e inoltra solo `GET /3/movie/{id}` con `language` e `append_to_response` limitati a `credits` e `watch/providers`: ogni nuovo endpoint va aggiunto alla lista chiusa. La chiave in `swift/MoviesApp/Models/NetworkManager.swift` è pubblica e va considerata compromessa.
 - **Non portare né derivare dati dai file dell'app originale:**
    - i 3 `.mlmodel` sono stati addestrati su metadati TMDB;
    - `swift/MoviesApp/Resources/movies-id-name.json` è un dump TMDB, come lo era `movies.json`, rimosso dal repo ma ancora nella history.
@@ -231,10 +241,9 @@ Dettagli e riferimenti in `docs/analisi-codebase.md`.
 ## Punti aperti (da decidere con l'utente)
 
 - **Filtro per piattaforme di streaming.** I provider sono dati TMDB/JustWatch: usarli per filtrare le raccomandazioni è in tensione con la regola "TMDB solo per la UI".
-- **Piattaforma del proxy TMDB.**
 - **Canale di aggiornamento dell'artefatto:** nuova build, EAS Update o download da un host statico.
 - **Uso commerciale:** richiede un accordo scritto con TMDB.
 
 ## Commit
 
-Scope del repo: `mobile`, `pipeline`, `legacy`, `docs`.
+Scope del repo: `mobile`, `proxy`, `pipeline`, `legacy`, `docs`.
