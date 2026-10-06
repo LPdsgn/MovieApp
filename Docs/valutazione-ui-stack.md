@@ -16,14 +16,14 @@ Per quest'app la libreria di componenti pesa poco. La parte che la distingue (ma
 
 ## 1. React Native Reusables vs gluestack-ui
 
-| | React Native Reusables | gluestack-ui |
-|---|---|---|
-| Modello | shadcn/ui per React Native: una CLI copia i componenti nel tuo progetto e il codice diventa tuo | Uguale: CLI e copia-incolla |
-| Base | `@rn-primitives`, un equivalente di Radix con accessibilità integrata | Componenti propri, più il sistema di varianti `tva()` |
-| Motori di stile | **Due varianti parallele, NativeWind v4 e Uniwind**, con gli stessi 32 componenti | NativeWind v4, NativeWind v5 (il motore di punta della v5) e Uniwind* |
-| Componenti | 32. Mancano toast, actionsheet e bottom sheet | 40+, con actionsheet, toast e menu |
-| Stabilità | CLI 0.7, primitives 1.4/1.5. Gli ultimi commit (luglio e settembre 2026) riguardano accessibilità, Reduce Motion e web | **3 major in meno di un anno**: v3 alpha (08/2025), v4 alpha (01/2026), v5 (06/2026). Prima ancora era NativeBase |
-| Licenza e modello | MIT, ~8,7k ★ | MIT, ~5,3k ★, GeekyAnts con prodotti Pro e template a pagamento |
+|                   | React Native Reusables                                                                                                 | gluestack-ui                                                                                                      |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Modello           | shadcn/ui per React Native: una CLI copia i componenti nel tuo progetto e il codice diventa tuo                        | Uguale: CLI e copia-incolla                                                                                       |
+| Base              | `@rn-primitives`, un equivalente di Radix con accessibilità integrata                                                  | Componenti propri, più il sistema di varianti `tva()`                                                             |
+| Motori di stile   | **Due varianti parallele, NativeWind v4 e Uniwind**, con gli stessi 32 componenti                                      | NativeWind v4, NativeWind v5 (il motore di punta della v5) e Uniwind*                                             |
+| Componenti        | 32. Mancano toast, actionsheet e bottom sheet                                                                          | 40+, con actionsheet, toast e menu                                                                                |
+| Stabilità         | CLI 0.7, primitives 1.4/1.5. Gli ultimi commit (luglio e settembre 2026) riguardano accessibilità, Reduce Motion e web | **3 major in meno di un anno**: v3 alpha (08/2025), v4 alpha (01/2026), v5 (06/2026). Prima ancora era NativeBase |
+| Licenza e modello | MIT, ~8,7k ★                                                                                                           | MIT, ~5,3k ★, GeekyAnts con prodotti Pro e template a pagamento                                                   |
 
 \* Le fonti di gluestack non sono coerenti fra loro. Il README della v5 cita NativeWind v5. Il documento interno `docs/uniwind-support.md` descrive componenti per NativeWind v4 e Uniwind generati da un unico sorgente.
 
@@ -31,29 +31,29 @@ Componenti di React Native Reusables (stessa lista per NativeWind e Uniwind): ac
 
 **Per MoovieFinder vince React Native Reusables.** Tutto quello che serve c'è:
 
-| Parte dell'app | Componente |
-|---|---|
-| I 3 dialog di Storage | `alert-dialog` |
-| Filtro dello storico | `dropdown-menu` |
+| Parte dell'app             | Componente                           |
+| -------------------------- | ------------------------------------ |
+| I 3 dialog di Storage      | `alert-dialog`                       |
+| Filtro dello storico       | `dropdown-menu`                      |
 | Piattaforme e impostazioni | `checkbox`, `toggle-group`, `switch` |
-| Generi | `badge` |
-| Foto del cast | `avatar` |
-| Caricamenti | `skeleton` |
-| About | `card`, `button` |
-| Ricerca futura | `input` |
+| Generi                     | `badge`                              |
+| Foto del cast              | `avatar`                             |
+| Caricamenti                | `skeleton`                           |
+| About                      | `card`, `button`                     |
+| Ricerca futura             | `input`                              |
 
 Inoltre l'app attuale ha **zero accessibilità**, e queste primitives la portano già pronta. gluestack conviene solo se ti servono actionsheet o toast già fatti, ma il suo ritmo di rotture di compatibilità è un rischio.
 
 ## 2. NativeWind v4 vs NativeWind v5 vs Uniwind
 
-| | NativeWind v4 | NativeWind v5 | Uniwind |
-|---|---|---|---|
-| Tailwind | 3 | 4 | 4 |
-| Stato | **Stabile**: 4.2.7, patch del 14/09/2026 | **RC0** del 13/09/2026, "not intended for production use". In preview dal 24/09/2025 | **Stabile**: 1.12.2 del 05/10/2026, release ogni 2-4 settimane |
-| Requisiti | Preset Babel | RN ≥ 0.81, Expo SDK ≥ 54, Reanimated 4, versioni pinnate (`react-native-css` RC, `lightningcss`) | Solo Tailwind 4 e config Metro. Niente preset Babel, funziona anche in Expo Go |
-| Futuro | Verrà sostituito dalla v5, e la migrazione toglie `cssInterop` e `remapProps` | È il futuro di NativeWind, ma non ancora | Ha una guida di migrazione da NativeWind |
-| Costo | MIT | MIT | MIT gratuito. Il Pro costa da 99 $/postazione/anno (zero re-render, Reanimated via `className`, transizioni di tema native) |
-| Chi lo fa | Il team NativeWind (~8,1k ★, 59 issue aperte) | Lo stesso | Il team di Unistyles (fra i contributor c'è jpudysz). ~1,7k ★, 6 issue aperte |
+|           | NativeWind v4                                                                 | NativeWind v5                                                                                    | Uniwind                                                                                                                     |
+| --------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| Tailwind  | 3                                                                             | 4                                                                                                | 4                                                                                                                           |
+| Stato     | **Stabile**: 4.2.7, patch del 14/09/2026                                      | **RC0** del 13/09/2026, "not intended for production use". In preview dal 24/09/2025             | **Stabile**: 1.12.2 del 05/10/2026, release ogni 2-4 settimane                                                              |
+| Requisiti | Preset Babel                                                                  | RN ≥ 0.81, Expo SDK ≥ 54, Reanimated 4, versioni pinnate (`react-native-css` RC, `lightningcss`) | Solo Tailwind 4 e config Metro. Niente preset Babel, funziona anche in Expo Go                                              |
+| Futuro    | Verrà sostituito dalla v5, e la migrazione toglie `cssInterop` e `remapProps` | È il futuro di NativeWind, ma non ancora                                                         | Ha una guida di migrazione da NativeWind                                                                                    |
+| Costo     | MIT                                                                           | MIT                                                                                              | MIT gratuito. Il Pro costa da 99 $/postazione/anno (zero re-render, Reanimated via `className`, transizioni di tema native) |
+| Chi lo fa | Il team NativeWind (~8,1k ★, 59 issue aperte)                                 | Lo stesso                                                                                        | Il team di Unistyles (fra i contributor c'è jpudysz). ~1,7k ★, 6 issue aperte                                               |
 
 In sintesi:
 

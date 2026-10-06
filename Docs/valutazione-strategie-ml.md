@@ -20,18 +20,18 @@ Quasi tutte le famiglie dell'elenco, cioè collaborative filtering, LightFM, lea
 
 ## Dove va ogni famiglia
 
-| Famiglia | Dati necessari | Li abbiamo? | Quando |
-|---|---|---|---|
-| Content-based (TF-IDF + coseno) | Feature dei film | Sì | **v1** |
-| Regole / knowledge-based | Vincoli di dominio | Sì | **v1** |
-| Bandit ε-greedy | Swipe dell'utente | Sì | **v1** |
-| Bandit Thompson / LinUCB | Swipe dell'utente + feature | Sì | **Dopo la riscrittura** |
-| Collaborative filtering (item-kNN, ALS, BPR) | Interazioni di molti utenti | No | Solo se arrivano i dati |
-| Ibridi (LightFM), learning to rank (LightGBM) | Interazioni di molti utenti + feature | No | Solo se arrivano i dati |
-| Grafo con random walk | Grafo film–feature (Wikidata lo è già) | Sì | Possibile, ma guadagno marginale |
-| Deep learning (two-tower, DeepFM, SASRec), GNN | Milioni di interazioni, reti neurali | No | Non adatto |
-| Regole di associazione | "Carrelli" di molti utenti | No | Non adatto |
-| Reinforcement learning completo | Molti dati, obiettivo di lungo periodo | No | Non adatto |
+| Famiglia                                       | Dati necessari                         | Li abbiamo? | Quando                           |
+| ---------------------------------------------- | -------------------------------------- | ----------- | -------------------------------- |
+| Content-based (TF-IDF + coseno)                | Feature dei film                       | Sì          | **v1**                           |
+| Regole / knowledge-based                       | Vincoli di dominio                     | Sì          | **v1**                           |
+| Bandit ε-greedy                                | Swipe dell'utente                      | Sì          | **v1**                           |
+| Bandit Thompson / LinUCB                       | Swipe dell'utente + feature            | Sì          | **Dopo la riscrittura**          |
+| Collaborative filtering (item-kNN, ALS, BPR)   | Interazioni di molti utenti            | No          | Solo se arrivano i dati          |
+| Ibridi (LightFM), learning to rank (LightGBM)  | Interazioni di molti utenti + feature  | No          | Solo se arrivano i dati          |
+| Grafo con random walk                          | Grafo film–feature (Wikidata lo è già) | Sì          | Possibile, ma guadagno marginale |
+| Deep learning (two-tower, DeepFM, SASRec), GNN | Milioni di interazioni, reti neurali   | No          | Non adatto                       |
+| Regole di associazione                         | "Carrelli" di molti utenti             | No          | Non adatto                       |
+| Reinforcement learning completo                | Molti dati, obiettivo di lungo periodo | No          | Non adatto                       |
 
 ## Cosa entra già nella v1
 
@@ -44,17 +44,18 @@ Sono quattro aggiunte a costo quasi zero, e ognuna corregge un difetto noto:
    - un riordino per diversità (MMR).
 
    È il rimedio al "sempre più dello stesso", il difetto tipico del content-based e anche dell'app originale.
+
 3. **Esplorazione ε-greedy (nell'app).** Con probabilità ε, per esempio 10-15%, la carta arriva dai film popolari o diversi invece che dai vicini. Sono una decina di righe.
 4. **Registrare la propensità.** Per ogni carta si salva la probabilità con cui è stata scelta. Costa una colonna in più negli eventi. Senza, la valutazione off-policy (IPS) dei motori futuri sui log storici non sarà mai possibile.
 
 Queste quattro parti sono già l'architettura a stadi di produzione, in piccolo:
 
-| Stadio | v1 | Dopo la riscrittura |
-|---|---|---|
-| Retrieval | Vicini dei film piaciuti + film popolari per sitelink | + vicini negli embedding |
-| Ranking | Σ voto × similarità + λ · prior | Modello lineare per utente (LinUCB) |
-| Riordino | Regole + diversità | Uguale |
-| Esplorazione | ε-greedy | Thompson / LinUCB |
+| Stadio       | v1                                                    | Dopo la riscrittura                 |
+| ------------ | ----------------------------------------------------- | ----------------------------------- |
+| Retrieval    | Vicini dei film piaciuti + film popolari per sitelink | + vicini negli embedding            |
+| Ranking      | Σ voto × similarità + λ · prior                       | Modello lineare per utente (LinUCB) |
+| Riordino     | Regole + diversità                                    | Uguale                              |
+| Esplorazione | ε-greedy                                              | Thompson / LinUCB                   |
 
 Nel codice sono quattro funzioni pure, non un framework.
 

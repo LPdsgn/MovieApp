@@ -11,29 +11,29 @@
 
 ## Verdetto
 
-| Area | Scelta |
-|---|---|
-| Lint JS/TS | **ESLint** con `eslint-config-expo` 57 (`npx expo lint`) |
-| Format | **Prettier** 3.9 + `prettier-plugin-tailwindcss` + `eslint-config-prettier` |
-| Typecheck | **TypeScript 6.0.3**, come nel template Expo (`tsc --noEmit`) |
-| Python (`pipeline/`) | **ruff** (lint + format) + **pytest** |
-| Hook | **lefthook** + **commitlint** |
-| CI | **GitHub Actions**: controlli su push/PR e pipeline dati programmata |
-| CD | **EAS Workflows**, da attivare alla prima build da distribuire, non allo scaffolding |
+| Area                 | Scelta                                                                               |
+| -------------------- | ------------------------------------------------------------------------------------ |
+| Lint JS/TS           | **ESLint** con `eslint-config-expo` 57 (`npx expo lint`)                             |
+| Format               | **Prettier** 3.9 + `prettier-plugin-tailwindcss` + `eslint-config-prettier`          |
+| Typecheck            | **TypeScript 6.0.3**, come nel template Expo (`tsc --noEmit`)                        |
+| Python (`pipeline/`) | **ruff** (lint + format) + **pytest**                                                |
+| Hook                 | **lefthook** + **commitlint**                                                        |
+| CI                   | **GitHub Actions**: controlli su push/PR e pipeline dati programmata                 |
+| CD                   | **EAS Workflows**, da attivare alla prima build da distribuire, non allo scaffolding |
 
 OXC (oxlint + oxfmt) va rivalutato più avanti: la sezione 1 indica a quali condizioni.
 
 ## 1. OXC vs ESLint + Prettier
 
-| | OXC (oxlint + oxfmt) | ESLint + Prettier (strada ufficiale Expo) |
-|---|---|---|
-| Stato | oxlint 1.87 stabile. oxfmt 0.72: beta da febbraio 2026, ancora sotto la 1.0, dichiara il 100% di compatibilità con Prettier su JS/TS | ESLint 10.12, Prettier 3.9.9. È ciò che crea `npx expo lint` (`eslint-config-expo` 57) |
-| **Regole del React Compiler** | **No.** Copre solo `react/hooks` e `react/exhaustive-deps` | **Sì.** `eslint-config-expo` attiva il set `recommended` di `eslint-plugin-react-hooks` 7.1.1: 16 regole, di cui 14 diagnostiche del compiler |
-| TypeScript | Il linting sui tipi richiede TS 7+. Copre 59 delle 61 regole di typescript-eslint basate sui tipi | typescript-eslint 8.71 supporta TS solo `<6.1.0`. Il template Expo usa 6.0.3, quindi va bene |
-| Regole Expo | `eslint-plugin-expo` solo tramite i JS plugin di oxlint, che sono in alpha | Incluse (`no-dynamic-env-var`, `no-env-var-destructuring`, `prefer-box-shadow`, `use-dom-exports`) |
-| Riordino classi Tailwind | Integrato (`sortTailwindcss`, disattivato per default) | `prettier-plugin-tailwindcss` 0.8.1 (opzione `tailwindStylesheet` per Tailwind 4) |
-| Riordino import | Integrato (`sortImports`) | `import/order`, già incluso in `eslint-config-expo` |
-| Altri formati | JSON, YAML, TOML, CSS, Markdown | Con Prettier, ma TOML richiede un plugin |
+|                               | OXC (oxlint + oxfmt)                                                                                                                 | ESLint + Prettier (strada ufficiale Expo)                                                                                                     |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Stato                         | oxlint 1.87 stabile. oxfmt 0.72: beta da febbraio 2026, ancora sotto la 1.0, dichiara il 100% di compatibilità con Prettier su JS/TS | ESLint 10.12, Prettier 3.9.9. È ciò che crea `npx expo lint` (`eslint-config-expo` 57)                                                        |
+| **Regole del React Compiler** | **No.** Copre solo `react/hooks` e `react/exhaustive-deps`                                                                           | **Sì.** `eslint-config-expo` attiva il set `recommended` di `eslint-plugin-react-hooks` 7.1.1: 16 regole, di cui 14 diagnostiche del compiler |
+| TypeScript                    | Il linting sui tipi richiede TS 7+. Copre 59 delle 61 regole di typescript-eslint basate sui tipi                                    | typescript-eslint 8.71 supporta TS solo `<6.1.0`. Il template Expo usa 6.0.3, quindi va bene                                                  |
+| Regole Expo                   | `eslint-plugin-expo` solo tramite i JS plugin di oxlint, che sono in alpha                                                           | Incluse (`no-dynamic-env-var`, `no-env-var-destructuring`, `prefer-box-shadow`, `use-dom-exports`)                                            |
+| Riordino classi Tailwind      | Integrato (`sortTailwindcss`, disattivato per default)                                                                               | `prettier-plugin-tailwindcss` 0.8.1 (opzione `tailwindStylesheet` per Tailwind 4)                                                             |
+| Riordino import               | Integrato (`sortImports`)                                                                                                            | `import/order`, già incluso in `eslint-config-expo`                                                                                           |
+| Altri formati                 | JSON, YAML, TOML, CSS, Markdown                                                                                                      | Con Prettier, ma TOML richiede un plugin                                                                                                      |
 
 **Il punto decisivo è il React Compiler.**
 
@@ -81,12 +81,12 @@ Dove stanno gli strumenti:
 - **Root:** lefthook, commitlint e Prettier. Prettier formatta tutto il repo (codice, Markdown, YAML, JSON) con un'unica configurazione, e `tailwindStylesheet` è relativo a quel file.
 - **`mobile/`:** ESLint (`eslint.config.js` generato da `npx expo lint`) e TypeScript.
 
-| Hook | Cosa esegue | Quando |
-|---|---|---|
-| `pre-commit` | Prettier (corregge e ri-aggiunge al commit), ESLint `--fix`, `ruff format` + `ruff check --fix` | Sui file in stage |
-| `pre-commit` | `tsc --noEmit` | Solo se cambiano file in `mobile/` |
-| `commit-msg` | commitlint con le regole dell'utente: tipi ammessi, header ≤ 120, subject minuscolo | Sempre |
-| `pre-push` | jest (`jest-expo` 57), pytest | Solo se cambia la cartella corrispondente |
+| Hook         | Cosa esegue                                                                                     | Quando                                    |
+| ------------ | ----------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| `pre-commit` | Prettier (corregge e ri-aggiunge al commit), ESLint `--fix`, `ruff format` + `ruff check --fix` | Sui file in stage                         |
+| `pre-commit` | `tsc --noEmit`                                                                                  | Solo se cambiano file in `mobile/`        |
+| `commit-msg` | commitlint con le regole dell'utente: tipi ammessi, header ≤ 120, subject minuscolo             | Sempre                                    |
+| `pre-push`   | jest (`jest-expo` 57), pytest                                                                   | Solo se cambia la cartella corrispondente |
 
 commitlint non può verificare che il subject sia in italiano. Tipi, lunghezza e minuscole sì.
 
@@ -118,6 +118,7 @@ Il repo è pubblico, quindi i runner standard sono gratuiti.
   - **60 minuti al mese di workflow CI/CD**: troppo pochi per i controlli su ogni push. Per questo i controlli girano su GitHub Actions ed EAS fa solo build e aggiornamenti.
 
   Il piano Starter costa 19 $/mese.
+
 - **Prerequisiti:**
   - un account Expo collegato alla GitHub app;
   - Apple Developer Program per TestFlight e App Store;

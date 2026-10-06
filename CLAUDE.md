@@ -6,14 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 MoovieFinder è un'app per scoprire film con lo swipe. Il repo è in fase di **riscrittura da iOS nativo (Swift) a React Native + Expo**.
 
-| Percorso | Contenuto | Regola |
-|---|---|---|
-| `MoviesApp/`, `MoviesApp.xcodeproj/`, `*.mlmodel` in root | App Swift originale (2022) | **Solo riferimento, non si modifica.** È la specifica funzionale e visiva |
-| `Docs/` | Analisi e valutazioni da cui nascono le decisioni qui sotto | Leggerle prima di decisioni architetturali |
-| `mobile/` | App Expo (da creare) | — |
-| `pipeline/` | Pipeline dati Wikidata in Python, progetto `uv` (da creare) | — |
+| Percorso                                                  | Contenuto                                                   | Regola                                                                    |
+| --------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `MoviesApp/`, `MoviesApp.xcodeproj/`, `*.mlmodel` in root | App Swift originale (2022)                                  | **Solo riferimento, non si modifica.** È la specifica funzionale e visiva |
+| `Docs/`                                                   | Analisi e valutazioni da cui nascono le decisioni qui sotto | Leggerle prima di decisioni architetturali                                |
+| `mobile/`                                                 | App Expo (da creare)                                        | —                                                                         |
+| `pipeline/`                                               | Pipeline dati Wikidata in Python, progetto `uv` (da creare) | —                                                                         |
 
 Documenti in `Docs/`:
+
 - `analisi-codebase.md`: com'è fatta l'app Swift e i suoi bug.
 - `valutazione-porting.md`: mappa iOS → Expo e stima.
 - `valutazione-motore-ml.md`: valore del ML e vincoli di licenza TMDB.
@@ -55,6 +56,7 @@ Quando `mobile/` e `pipeline/` esistono, sostituisci questa nota con i comandi r
 - Lingue it, en, de, come l'originale. Nei `.strings` originali ci sono chiavi rotte, documentate in `Docs/analisi-codebase.md`.
 
 Perimetro v1 = le funzioni che oggi funzionano:
+
 - Discover (swipe + storico);
 - Watchlist;
 - dettaglio film (cast, provider);
@@ -66,15 +68,15 @@ Fuori dalla v1, perché nell'originale erano morte: Search, onboarding, location
 
 Motivazioni in `Docs/valutazione-toolchain.md`.
 
-| Area | Strumento | Dove |
-|---|---|---|
-| Lint | ESLint con `eslint-config-expo` (`npx expo lint`) | `mobile/` |
-| Format | Prettier + `prettier-plugin-tailwindcss` (con `tailwindStylesheet` puntato al CSS di Uniwind, percorso relativo alla config di Prettier) + `eslint-config-prettier` | Root, per tutto il repo |
-| Typecheck | La versione di TypeScript del template (6.0.3), `tsc --noEmit` | `mobile/` |
-| Python | ruff (lint + format), pytest | `pipeline/` |
-| Hook | lefthook + commitlint | Root |
-| CI | GitHub Actions | `.github/workflows/` |
-| CD | EAS Workflows, solo dalla prima build da distribuire | `.eas/workflows/` |
+| Area      | Strumento                                                                                                                                                           | Dove                    |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| Lint      | ESLint con `eslint-config-expo` (`npx expo lint`)                                                                                                                   | `mobile/`               |
+| Format    | Prettier + `prettier-plugin-tailwindcss` (con `tailwindStylesheet` puntato al CSS di Uniwind, percorso relativo alla config di Prettier) + `eslint-config-prettier` | Root, per tutto il repo |
+| Typecheck | La versione di TypeScript del template (6.0.3), `tsc --noEmit`                                                                                                      | `mobile/`               |
+| Python    | ruff (lint + format), pytest                                                                                                                                        | `pipeline/`             |
+| Hook      | lefthook + commitlint                                                                                                                                               | Root                    |
+| CI        | GitHub Actions                                                                                                                                                      | `.github/workflows/`    |
+| CD        | EAS Workflows, solo dalla prima build da distribuire                                                                                                                | `.eas/workflows/`       |
 
 - **Non passare a oxlint, oxfmt o TypeScript 7 senza rivalutare.**
   - Il template Expo SDK 57 ha il React Compiler attivo, e `eslint-plugin-react-hooks` 7 ne attiva 14 diagnostiche che oxlint non ha.
@@ -121,7 +123,7 @@ Va implementata da subito. Produce i dati del motore di raccomandazione v1, che 
   - **Limiti di frequenza:** WDQS può limitare in modo drastico. Il 05/10/2026 ha risposto HTTP 429, "1 req / min", durante un disservizio. La pipeline deve:
     - rispettare `Retry-After` e riprovare con attese crescenti;
     - salvare i risultati parziali, così una nuova esecuzione riprende senza ripetere le query già completate.
-  - Usare i valori *truthy* (`wdt:`).
+  - Usare i valori _truthy_ (`wdt:`).
   - **P4947 può avere più valori, e più QID possono puntare allo stesso id TMDB:** vanno deduplicati in modo esplicito.
 - **Catalogo:** film con P4947, filtrati per popolarità con `wikibase:sitelinks`, che sostituisce la popolarità TMDB (non utilizzabile).
   - Con soglia ≥ 10 sono circa 28.600 film (ottobre 2026); l'originale ne aveva ~17.000.
@@ -146,6 +148,7 @@ Va implementata da subito. Produce i dati del motore di raccomandazione v1, che 
   - top-K vicini precalcolati con TF-IDF sulle feature e similarità del coseno (K=64 come nell'originale). Con l'IDF le feature comuni (genere "drammatico", paese "Stati Uniti") pesano poco e quelle rare (regista, saga) pesano molto.
 
   L'app lo include nel bundle. Il canale di aggiornamento è un punto aperto.
+
 - **Aggiornare i dati** significa rigenerare l'artefatto: nessuna logica dell'app deve presupporre un catalogo fisso.
 
 ## Motore di raccomandazione
@@ -156,21 +159,23 @@ Motivazioni in `Docs/valutazione-strategie-ml.md`.
 
 **Struttura.** Il motore ha 4 stadi, ognuno è una funzione pura. Nel complesso è `(artefatto, eventi utente) → prossima carta`. Niente framework.
 
-| Stadio | v1 (sul dispositivo, senza runtime ML) | Dopo la riscrittura |
-|---|---|---|
-| Retrieval | Vicini dei film piaciuti + serbatoio di film popolari per sitelink, che serve anche per le prime carte | + vicini negli embedding |
-| Ranking | `Σ voto × similarità + λ·prior` su una sola tabella combinata (non 3 modelli a rotazione come nell'originale) | Modello lineare condiviso per utente (LinUCB o Thompson lineare) su embedding, prior, decade e durata. Si aggiorna con Sherman-Morrison: matrice d×d con d ≤ 64 |
-| Riordino | Escludere i film già visti e quelli non ancora usciti (P577 nel futuro). Mai due film della stessa saga di fila (P179). Diversità con MMR | Uguale |
-| Esplorazione | ε-greedy (ε ≈ 0,10-0,15), pescando dal serbatoio dei popolari o dei diversi | Thompson / LinUCB |
+| Stadio       | v1 (sul dispositivo, senza runtime ML)                                                                                                    | Dopo la riscrittura                                                                                                                                             |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Retrieval    | Vicini dei film piaciuti + serbatoio di film popolari per sitelink, che serve anche per le prime carte                                    | + vicini negli embedding                                                                                                                                        |
+| Ranking      | `Σ voto × similarità + λ·prior` su una sola tabella combinata (non 3 modelli a rotazione come nell'originale)                             | Modello lineare condiviso per utente (LinUCB o Thompson lineare) su embedding, prior, decade e durata. Si aggiorna con Sherman-Morrison: matrice d×d con d ≤ 64 |
+| Riordino     | Escludere i film già visti e quelli non ancora usciti (P577 nel futuro). Mai due film della stessa saga di fila (P179). Diversità con MMR | Uguale                                                                                                                                                          |
+| Esplorazione | ε-greedy (ε ≈ 0,10-0,15), pescando dal serbatoio dei popolari o dei diversi                                                               | Thompson / LinUCB                                                                                                                                               |
 
 **Embedding futuri.** Si ottengono con una SVD troncata della matrice film × feature TF-IDF, calcolata nella pipeline con numpy o scikit-learn: 32-64 dimensioni, distribuiti come altra tabella versionata dell'artefatto. Niente reti neurali. Non generarli finché non esiste il codice che li usa.
 
 **Eventi.** Si salvano **grezzi**, non solo i punteggi aggregati. Ogni evento contiene:
+
 - film, azione (like, scarto, watchlist) e timestamp;
 - **versione di algoritmo e artefatto** che ha proposto la carta;
 - **propensità**: la probabilità con cui la carta è stata scelta (es. 0,9 se sfruttamento, 0,1 se esplorazione).
 
 Servono a tre cose:
+
 - al bandit;
 - alla valutazione off-policy (IPS) dei motori futuri sui log;
 - alla metrica di successo: percentuale di swipe a destra e aggiunte alla watchlist per sessione, divise per versione di algoritmo.
@@ -178,6 +183,7 @@ Servono a tre cose:
 **Fonti di dati.** Anche il ML futuro userà solo feature Wikidata ed eventi dell'utente, mai contenuti TMDB.
 
 **Solo se arrivano interazioni di molti utenti:** item-kNN sui like in comune, ALS o BPR (libreria `implicit`), poi LightFM o LightGBM. Le interazioni possono venire da:
+
 - una telemetria propria, opt-in, con backend;
 - MovieLens, ma serve il permesso di GroupLens: la licenza copre solo la ricerca, e le trasformazioni si ridistribuiscono solo con la stessa licenza.
 
@@ -189,7 +195,7 @@ Questi modelli producono vicini o embedding per film, quindi entrano nell'artefa
 
 Dettagli e riferimenti in `Docs/analisi-codebase.md`.
 
-- **Swipe persi o applicati tardi.** Gli swipe non venivano salvati e il feedback arrivava dopo il fetch della carta successiva. Va salvato e applicato *prima*.
+- **Swipe persi o applicati tardi.** Gli swipe non venivano salvati e il feedback arrivava dopo il fetch della carta successiva. Va salvato e applicato _prima_.
 - **Segnaposto al posto degli errori.** Su errore si restituiva un film segnaposto (`Movie.example`), che causava un loop infinito di richieste. Gli errori devono essere espliciti e i retry limitati.
 - **Watchlist in quattro copie.** Qui deve esserci una sola fonte di verità in SQLite.
 - **Bottone bloccato.** Ogni stato di caricamento deve avere anche il ramo di errore.

@@ -14,15 +14,15 @@
 
 ## Stack
 
-| Area | Tecnologia |
-|---|---|
-| Linguaggio e target | Swift 5, iOS 15.0/15.2 (il target non è uguale fra progetto e app), iPhone e iPad |
-| UI | SwiftUI, con pezzi UIKit: `MFMailComposeViewController`, StoreKit, appearance globali |
-| Rete | `URLSession` con async/await verso TMDB v3 (3 endpoint: dettaglio, crediti, provider) |
-| Persistenza | Core Data, con una sola entità `MovieToSave` (`id`, `watchListItBelong`) |
-| Machine learning | 3 recommender Create ML (generi, keyword, case di produzione), 9–15 MB ciascuno |
-| Altro | SpriteKit per le particelle, ma è disattivato. Localizzazione it/en/de |
-| Tooling | Nessuna dipendenza (né SPM né CocoaPods), nessun test, CI, linter o README |
+| Area                | Tecnologia                                                                            |
+| ------------------- | ------------------------------------------------------------------------------------- |
+| Linguaggio e target | Swift 5, iOS 15.0/15.2 (il target non è uguale fra progetto e app), iPhone e iPad     |
+| UI                  | SwiftUI, con pezzi UIKit: `MFMailComposeViewController`, StoreKit, appearance globali |
+| Rete                | `URLSession` con async/await verso TMDB v3 (3 endpoint: dettaglio, crediti, provider) |
+| Persistenza         | Core Data, con una sola entità `MovieToSave` (`id`, `watchListItBelong`)              |
+| Machine learning    | 3 recommender Create ML (generi, keyword, case di produzione), 9–15 MB ciascuno       |
+| Altro               | SpriteKit per le particelle, ma è disattivato. Localizzazione it/en/de                |
+| Tooling             | Nessuna dipendenza (né SPM né CocoaPods), nessun test, CI, linter o README            |
 
 ## Architettura
 
@@ -74,7 +74,7 @@ DiscoverViewModel → MovieAppModel.shared → NetworkManager.shared → TMDB
   - le etichette affitto/acquisto sono invertite (`MovieProviders.swift:41-55`);
   - il testo About in tedesco è vuoto;
   - YEP, NOPE, i dialog di Storage e parte di About sono scritti a mano in inglese.
-- **Raccomandazioni:** il feedback viene registrato *dopo* aver scaricato la carta successiva, quindi ogni raccomandazione ignora l'ultimo swipe. Lo swipe verso la watchlist non finisce nello storico.
+- **Raccomandazioni:** il feedback viene registrato _dopo_ aver scaricato la carta successiva, quindi ogni raccomandazione ignora l'ultimo swipe. Lo swipe verso la watchlist non finisce nello storico.
 - **Icone dei provider:** possono mostrare l'immagine sbagliata, perché tutte usano un unico `uiImage` condiviso (`DiscoverViewModel.swift:17` → `MovieProviders.swift:106`).
 - **Watchlist:** un film aperto dalla watchlist non mostra provider né crediti, perché viene caricato per un'altra strada.
 - **Accessibilità:** non c'è nessun `accessibilityLabel`, alcuni font hanno dimensione fissa e le animazioni non rispettano l'impostazione "Riduci movimento".

@@ -19,15 +19,15 @@
 
 Il motore di oggi è già una tecnica di raccomandazione legittima: suggerisce film simili per contenuto, usando tabelle di vicini. I suoi limiti reali sono però quasi tutti fuori dal ML:
 
-| Limite di oggi | Lo risolve un ML migliore? |
-|---|---|
-| Gli swipe non vengono salvati: a ogni avvio l'app dimentica i tuoi gusti | No: basta salvarli |
-| Il catalogo è fermo al 2022 (circa 17 mila film) | No: serve una pipeline che aggiorni i dati |
-| L'app non sa su quali piattaforme guardi (l'impostazione non viene salvata) | No: basta un filtro sui provider TMDB |
-| Il feedback viene applicato in ritardo (bug) | No: va corretto il bug |
-| Propone sempre il film più simile, senza mai esplorare: resti chiuso negli stessi generi | **In parte**: un algoritmo "bandit" alterna sfruttamento ed esplorazione |
-| Alterna i 3 modelli invece di combinarli, con gli stessi pesi per tutti | **Sì**: un modello per utente impara cosa conta per te (regista, genere, epoca) |
-| Due film sono simili solo se condividono etichette (generi, keyword, case di produzione) | **Sì**: gli embedding della trama misurano la somiglianza di contenuto |
+| Limite di oggi                                                                           | Lo risolve un ML migliore?                                                      |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Gli swipe non vengono salvati: a ogni avvio l'app dimentica i tuoi gusti                 | No: basta salvarli                                                              |
+| Il catalogo è fermo al 2022 (circa 17 mila film)                                         | No: serve una pipeline che aggiorni i dati                                      |
+| L'app non sa su quali piattaforme guardi (l'impostazione non viene salvata)              | No: basta un filtro sui provider TMDB                                           |
+| Il feedback viene applicato in ritardo (bug)                                             | No: va corretto il bug                                                          |
+| Propone sempre il film più simile, senza mai esplorare: resti chiuso negli stessi generi | **In parte**: un algoritmo "bandit" alterna sfruttamento ed esplorazione        |
+| Alterna i 3 modelli invece di combinarli, con gli stessi pesi per tutti                  | **Sì**: un modello per utente impara cosa conta per te (regista, genere, epoca) |
+| Due film sono simili solo se condividono etichette (generi, keyword, case di produzione) | **Sì**: gli embedding della trama misurano la somiglianza di contenuto          |
 
 In ordine di valore rispetto al costo:
 
@@ -42,12 +42,12 @@ Una premessa vale per tutto: oggi l'app non ha nessuna analytics, quindi un migl
 
 La toolchain non è un limite. Conta dove gira il modello:
 
-| Approccio | Dove gira | In Expo |
-|---|---|---|
-| Bandit + embedding precalcolati | Sul dispositivo, TypeScript puro. 17 mila film × 384 dimensioni in int8 fanno circa 6,5 MB. Il calcolo richiede probabilmente decine di millisecondi | Nessun modulo nativo |
-| Reti neurali sul dispositivo (embedding di una query, piccoli LLM) | Sul dispositivo | Moduli nativi (`react-native-executorch`, `onnxruntime-react-native`, `react-native-fast-tflite`) con development build, non Expo Go. Maturità da verificare |
-| LLM di sistema (Apple Foundation Models su iOS 26, Gemini Nano su alcuni Android) | Sul dispositivo | Un bridge nativo per piattaforma. Coprono solo una parte dei dispositivi, quindi non vanno bene come motore principale |
-| Collaborative filtering o LLM lato server | Backend (Python, Vercel Functions…) | Non dipende dalla toolchain |
+| Approccio                                                                         | Dove gira                                                                                                                                            | In Expo                                                                                                                                                      |
+| --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Bandit + embedding precalcolati                                                   | Sul dispositivo, TypeScript puro. 17 mila film × 384 dimensioni in int8 fanno circa 6,5 MB. Il calcolo richiede probabilmente decine di millisecondi | Nessun modulo nativo                                                                                                                                         |
+| Reti neurali sul dispositivo (embedding di una query, piccoli LLM)                | Sul dispositivo                                                                                                                                      | Moduli nativi (`react-native-executorch`, `onnxruntime-react-native`, `react-native-fast-tflite`) con development build, non Expo Go. Maturità da verificare |
+| LLM di sistema (Apple Foundation Models su iOS 26, Gemini Nano su alcuni Android) | Sul dispositivo                                                                                                                                      | Un bridge nativo per piattaforma. Coprono solo una parte dei dispositivi, quindi non vanno bene come motore principale                                       |
+| Collaborative filtering o LLM lato server                                         | Backend (Python, Vercel Functions…)                                                                                                                  | Non dipende dalla toolchain                                                                                                                                  |
 
 Flutter e Kotlin Multiplatform hanno opzioni equivalenti.
 
@@ -60,6 +60,7 @@ Flutter e Kotlin Multiplatform hanno opzioni equivalenti.
   - conservare in cache i dati TMDB per più di 6 mesi.
 
   L'uso commerciale richiede sempre un accordo scritto.
+
 - **Un'interpretazione più stretta, ma informale.** Il 20/07/2026 Travis Bell, dello staff TMDB, ha risposto sul forum a un caso specifico: un progetto di studenti, non commerciale, che calcola similarità con TF-IDF o embedding "non rientra" in ciò che i termini vogliono escludere. È una risposta su un forum, non una regola: non definisce un confine e non copre l'uso commerciale.
 - **Riguarda anche l'app di oggi:**
   - i 3 modelli Core ML sono stati addestrati sui metadati TMDB nel 2022, prima che i termini cambiassero;

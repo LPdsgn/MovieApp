@@ -14,11 +14,11 @@
 
 Il rischio che sembrava maggiore, i modelli Core ML, si è rivelato piccolo. Tutti e tre sono `itemSimilarityRecommender`, cioè **tabelle di vicini precalcolate, senza alcuna rete neurale**:
 
-| Modello | Film | Vicini per film (max) | Coppie |
-|---|---|---|---|
-| Genres | 17.572 | 64 | 1,04 M |
-| Keyword | 15.666 | 64 | 0,95 M |
-| Production | 15.937 | 64 | 0,68 M |
+| Modello    | Film   | Vicini per film (max) | Coppie |
+| ---------- | ------ | --------------------- | ------ |
+| Genres     | 17.572 | 64                    | 1,04 M |
+| Keyword    | 15.666 | 64                    | 0,95 M |
+| Production | 15.937 | 64                    | 0,68 M |
 
 Gli id dei film sono id TMDB numerici. Gli input sono gli stessi in tutti e tre (`items`, `k`, `restrict`, `exclude`), e così gli output (`recommendations`, `scores`).
 
@@ -32,20 +32,20 @@ Così non serve alcun runtime di ML né su iOS né su Android.
 
 ## Dove finisce ogni componente
 
-| Oggi su iOS | In Expo | Difficoltà |
-|---|---|---|
-| 3 modelli Core ML | file statico + motore in TypeScript (vedi sopra) | bassa-media |
-| `URLSession` → TMDB | `fetch` + TanStack Query | bassa |
-| Core Data (1 entità, 2 campi) | `expo-sqlite` o MMKV | bassa |
-| `NSCache` per le immagini | `expo-image` (cache su disco e in memoria) | bassa |
-| Mazzo di carte con lo swipe (`DragGesture`) | Gesture Handler + Reanimated | media |
+| Oggi su iOS                                                               | In Expo                                                                                                   | Difficoltà     |
+| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | -------------- |
+| 3 modelli Core ML                                                         | file statico + motore in TypeScript (vedi sopra)                                                          | bassa-media    |
+| `URLSession` → TMDB                                                       | `fetch` + TanStack Query                                                                                  | bassa          |
+| Core Data (1 entità, 2 campi)                                             | `expo-sqlite` o MMKV                                                                                      | bassa          |
+| `NSCache` per le immagini                                                 | `expo-image` (cache su disco e in memoria)                                                                | bassa          |
+| Mazzo di carte con lo swipe (`DragGesture`)                               | Gesture Handler + Reanimated                                                                              | media          |
 | Transizione carta → dettaglio con `matchedGeometryEffect` (10 occorrenze) | shared element transition di Reanimated (sperimentale, da verificare) oppure una transizione più semplice | **medio-alta** |
-| Materiali e blur | `expo-blur` (su Android rende meno) | bassa |
-| Bottoni skeuomorfici con ombra interna | `boxShadow` inset (solo New Architecture) o Skia | bassa-media |
-| 10 SF Symbols | `expo-symbols` su iOS, set di icone vettoriali su Android | bassa |
-| Haptics, mail, deep link ai provider | `expo-haptics`, `expo-mail-composer`, `Linking` | bassa |
-| `.strings` (3 lingue, circa 44 chiavi) | `expo-localization` + i18next, convertibili in automatico | bassa |
-| Particelle SpriteKit | già disattivate: non si portano | — |
+| Materiali e blur                                                          | `expo-blur` (su Android rende meno)                                                                       | bassa          |
+| Bottoni skeuomorfici con ombra interna                                    | `boxShadow` inset (solo New Architecture) o Skia                                                          | bassa-media    |
+| 10 SF Symbols                                                             | `expo-symbols` su iOS, set di icone vettoriali su Android                                                 | bassa          |
+| Haptics, mail, deep link ai provider                                      | `expo-haptics`, `expo-mail-composer`, `Linking`                                                           | bassa          |
+| `.strings` (3 lingue, circa 44 chiavi)                                    | `expo-localization` + i18next, convertibili in automatico                                                 | bassa          |
+| Particelle SpriteKit                                                      | già disattivate: non si portano                                                                           | —              |
 
 L'unico punto in cui l'app perderebbe un po' di resa rispetto a SwiftUI è la transizione animata dalla carta al dettaglio. Tutto il resto ha un equivalente maturo.
 
@@ -73,12 +73,12 @@ L'unico punto in cui l'app perderebbe un po' di resa rispetto a SwiftUI è la tr
 
 Ipotesi: una persona esperta di Expo, che porta le funzioni che oggi funzionano davvero (Discover con swipe e storico, Watchlist, dettaglio con cast e provider, Settings) e lascia fuori quelle morte (Search, onboarding, location e lingua).
 
-| Attività | Giorni |
-|---|---|
-| Setup, navigazione, i18n, tema | 2–3 |
-| Layer TMDB, proxy per la chiave, storage | 2–3 |
-| Export dei modelli, motore in TypeScript, test di parità | 2–3 |
-| Mazzo di carte e animazioni | 4–6 |
-| Schermate dettaglio, watchlist, storico, impostazioni | 5–7 |
-| Rifinitura, test su Android, build per gli store con EAS | 3–5 |
-| **Totale** | **circa 4–6 settimane-persona** |
+| Attività                                                 | Giorni                          |
+| -------------------------------------------------------- | ------------------------------- |
+| Setup, navigazione, i18n, tema                           | 2–3                             |
+| Layer TMDB, proxy per la chiave, storage                 | 2–3                             |
+| Export dei modelli, motore in TypeScript, test di parità | 2–3                             |
+| Mazzo di carte e animazioni                              | 4–6                             |
+| Schermate dettaglio, watchlist, storico, impostazioni    | 5–7                             |
+| Rifinitura, test su Android, build per gli store con EAS | 3–5                             |
+| **Totale**                                               | **circa 4–6 settimane-persona** |
