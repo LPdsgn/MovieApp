@@ -141,7 +141,10 @@ function HistoryCell({ entry, width }: { entry: HistoryEntry; width: number }) {
 			accessibilityRole="button"
 			accessibilityLabel={movie.data?.title ?? String(entry.tmdbId)}
 			onPress={() =>
-				router.push({ pathname: '/movie/[tmdbId]', params: { tmdbId: String(entry.tmdbId) } })
+				router.push({
+					pathname: '/movie/[tmdbId]',
+					params: { tmdbId: String(entry.tmdbId), qid: String(entry.qid) },
+				})
 			}>
 			<View>
 				<PosterImage path={movie.data?.poster_path} size="w342" />

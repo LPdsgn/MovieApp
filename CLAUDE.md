@@ -124,6 +124,7 @@ Motivazioni in `docs/valutazione-toolchain.md`.
    - Il React Compiler vieta `setState` sincrono dentro `useEffect`: lo stato di caricamento si deriva da un contatore di tentativi (vedi `useDeck`).
 - **Icone lucide e `react-native-svg`:** mai `fill="currentColor"`, fa crashare l'app in nativo senza errore JavaScript. Colori espliciti.
 - **Sovrapposizione di viste:** l'ordine dei figli non basta a decidere chi sta sopra quando ci sono viste assolute e animate: `z-10` sulla carta interattiva e `z-0` su quelle dietro (vedi `components/movie/swipe-card.tsx`).
+- **`presentation: 'formSheet'` di expo-router:** dentro il foglio nativo la `ScrollView` del dettaglio non viene disegnata (solo i fratelli assoluti). Il dettaglio usa `presentation: 'modal'` (page sheet con chiusura trascinando) e una maniglia disegnata a mano.
 - **Safe area con Uniwind free:** le utility `pt-safe` ecc. funzionano solo con `SafeAreaProvider` + `SafeAreaListener` che chiama `Uniwind.updateInsets` (in `app/_layout.tsx`).
 - **Provare l'app:** basta Expo Go, non serve un dev client: `pnpm --filter mobile exec expo start --ios` dalla root. In background va lanciato con `--filter mobile`, non con `cd mobile &&`, altrimenti Metro parte dalla root e genera `tsconfig.json` e `.expo/` lì. Le route si aprono con `xcrun simctl openurl booted "exp://<ip>:8081/--/history"`.
 - **Prettier si esegue a parte**, non come regola ESLint: niente `eslint-plugin-prettier`.

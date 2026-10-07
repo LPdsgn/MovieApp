@@ -96,7 +96,7 @@ export default function SwipeScreen() {
 								onPress={() =>
 									router.push({
 										pathname: '/movie/[tmdbId]',
-										params: { tmdbId: String(card.tmdbId) },
+										params: { tmdbId: String(card.tmdbId), qid: String(card.qid) },
 									})
 								}
 								onSwipe={(action, source) => onSwipe(card, action, source)}>

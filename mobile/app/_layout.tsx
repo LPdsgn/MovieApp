@@ -50,12 +50,9 @@ export default function RootLayout() {
 										<Stack.Screen
 											name="movie/[tmdbId]"
 											options={{
-												// Foglio nativo con maniglia e chiusura trascinando, come il dettaglio dell'originale.
-												presentation: 'formSheet',
+												// Page sheet iOS con chiusura trascinando. Non formSheet: lì la ScrollView non viene disegnata.
+												presentation: 'modal',
 												headerShown: false,
-												sheetGrabberVisible: true,
-												sheetAllowedDetents: [0.92],
-												sheetCornerRadius: 16,
 											}}
 										/>
 									</Stack>
