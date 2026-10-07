@@ -10,7 +10,8 @@
 		"clean": "rm -rf .expo node_modules",
 		"lint": "expo lint",
 		"typecheck": "tsc --noEmit",
-		"test": "jest --passWithNoTests"
+		"test": "jest --passWithNoTests",
+		"db:pull": "cp ../pipeline/dist/moovie.sqlite assets/db/moovie.db"
 	},
 	"dependencies": {
 		"@rn-primitives/accordion": "^1.5.2",
@@ -40,11 +41,13 @@
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"expo": "~57.0.27",
+		"expo-asset": "~57.0.19",
 		"expo-constants": "~57.0.21",
 		"expo-haptics": "~57.0.3",
 		"expo-linking": "~57.0.12",
 		"expo-router": "~57.0.25",
 		"expo-splash-screen": "~57.0.9",
+		"expo-sqlite": "~57.0.4",
 		"expo-status-bar": "~57.0.1",
 		"expo-system-ui": "~57.0.4",
 		"expo-updates": "~57.0.25",

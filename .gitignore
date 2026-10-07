@@ -15,3 +15,6 @@ pipeline/dist/
 # Proxy: secret locali e cache di wrangler
 proxy/.dev.vars
 proxy/.wrangler/
+
+# Artefatto dati nel bundle: si copia dalla pipeline con `pnpm --filter mobile db:pull`, non si committa
+mobile/assets/db/*.db

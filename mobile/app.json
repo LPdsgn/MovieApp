@@ -43,7 +43,9 @@
 					"backgroundColor": "#1F1F1F"
 				}
 			],
-			"expo-status-bar"
+			"expo-status-bar",
+			"expo-sqlite",
+			"expo-asset"
 		],
 		"experiments": {
 			"typedRoutes": true,
