@@ -7,6 +7,7 @@ import { Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 import { CircleButton } from '@/components/movie/circle-button';
 import { MovieCardError, MovieCardSkeleton } from '@/components/movie/movie-card';
 import { GenreChips, MovieMeta, StarsRating } from '@/components/movie/movie-meta';
+import { CastRow, ProvidersSection } from '@/components/movie/movie-sections';
 import { PosterImage } from '@/components/movie/poster-image';
 import { LinearGradient } from '@/components/styled';
 import { Icon } from '@/components/ui/icon';
@@ -27,7 +28,6 @@ const POSTER_VISIBLE = 300;
  * su sfondo piatto Gray-800 (non lo sfondo a gradiente delle altre schermate: si vedrebbe lo stacco),
  * contenuto che parte a 300 pt sovrapponendosi al poster. A differenza dell'originale poster e gradiente
  * scorrono con il contenuto, altrimenti il testo finisce sull'immagine nuda e non si legge.
- * Cast e provider arrivano con il task successivo.
  */
 export default function MovieScreen() {
 	const { tmdbId, qid } = useLocalSearchParams<{ tmdbId: string; qid?: string }>();
@@ -97,6 +97,10 @@ export default function MovieScreen() {
 							<BookmarkButton tmdbId={Number(tmdbId)} qid={qid ? Number(qid) : null} />
 						</View>
 						<Text className="pt-2 text-base text-white">{movie.data.overview}</Text>
+						<View className="gap-6 pt-4">
+							<CastRow movie={movie.data} />
+							<ProvidersSection movie={movie.data} />
+						</View>
 					</View>
 				)}
 			</ScrollView>
