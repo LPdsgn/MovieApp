@@ -15,25 +15,12 @@ function SectionTitle({ children }: { children: string }) {
 	);
 }
 
-/** About come l'originale: testo, contatto via mail, attribuzione TMDB (obbligatoria) e team. */
+/** About: testo, contributi (TMDB obbligatoria, JustWatch, Wikidata CC0) e team. Niente CTA di contatto. */
 export default function AboutScreen() {
 	return (
 		<Screen>
 			<ScrollView contentContainerClassName="gap-8 px-4 pb-16 pt-safe-offset-14">
 				<Text className="text-xl text-foreground">{t('about.text')}</Text>
-
-				<View className="gap-3">
-					<SectionTitle>{t('about.contact')}</SectionTitle>
-					{/* Come l'originale: bozza di mail senza destinatario preimpostato. */}
-					<Pressable
-						accessibilityRole="button"
-						onPress={() => Linking.openURL('mailto:?subject=MoovieFinder').catch(() => {})}
-						className="items-center rounded-xl bg-primary py-4 active:opacity-80">
-						<Text className="text-lg font-semibold text-primary-foreground uppercase">
-							{t('about.contactButton')}
-						</Text>
-					</Pressable>
-				</View>
 
 				<View className="gap-4">
 					<SectionTitle>{t('about.contributions')}</SectionTitle>
@@ -47,7 +34,17 @@ export default function AboutScreen() {
 						/>
 						<Text className="flex-1 text-base text-foreground">{t('about.tmdb')}</Text>
 					</View>
-					<Text className="text-sm text-muted-foreground">{t('movie.providersBy')}</Text>
+					<Pressable
+						accessibilityRole="link"
+						onPress={() => Linking.openURL('https://www.justwatch.com').catch(() => {})}>
+						<Text className="text-base text-foreground">{t('movie.providersBy')}</Text>
+					</Pressable>
+					<Separator className="bg-white/10" />
+					<Pressable
+						accessibilityRole="link"
+						onPress={() => Linking.openURL('https://www.wikidata.org').catch(() => {})}>
+						<Text className="text-base text-foreground">{t('about.wikidata')}</Text>
+					</Pressable>
 					<Separator className="bg-white/10" />
 					<View className="gap-1.5">
 						<Text className="text-base text-foreground">{t('about.team')}</Text>

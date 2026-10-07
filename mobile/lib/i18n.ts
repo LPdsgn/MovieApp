@@ -66,10 +66,10 @@ const en = {
 	// About
 	'about.text':
 		'MoovieFinder is an intuitive tool to find something new to watch in an easy way, powered by dynamic suggestions automatically updated according to your previous choices.',
-	'about.contact': 'Need to chat?',
-	'about.contactButton': 'Get in touch',
 	'about.contributions': 'Contributions',
 	'about.tmdb': 'This product uses the TMDB API but is not endorsed or certified by TMDB.',
+	'about.wikidata':
+		'Movie catalogue and recommendation features come from Wikidata, released under CC0.',
 	'about.team': 'MoovieFinder is brought to you by',
 } as const;
 
@@ -128,11 +128,11 @@ const it: Dictionary = {
 	'storage.clear': 'Svuota',
 	'about.text':
 		'MoovieFinder è uno strumento intuitivo per trovare qualcosa di nuovo da guardare in modo semplice, alimentato da suggerimenti dinamici aggiornati automaticamente in base alle tue scelte precedenti.',
-	'about.contact': 'Hai bisogno di parlarci?',
-	'about.contactButton': 'Contattaci',
 	'about.contributions': 'Contributi',
 	'about.tmdb':
 		"Questo prodotto utilizza l'API di TMDB ma non è approvato né certificato da TMDB.",
+	'about.wikidata':
+		'Catalogo dei film e caratteristiche per le raccomandazioni provengono da Wikidata, con licenza CC0.',
 	'about.team': 'MoovieFinder è realizzato da',
 };
 
@@ -188,11 +188,11 @@ const de: Dictionary = {
 	'storage.clear': 'Leeren',
 	'about.text':
 		'MoovieFinder ist ein intuitives Werkzeug, um auf einfache Weise etwas Neues zum Anschauen zu finden, mit dynamischen Vorschlägen, die sich automatisch an deine bisherigen Entscheidungen anpassen.',
-	'about.contact': 'Möchtest du mit uns reden?',
-	'about.contactButton': 'Kontakt aufnehmen',
 	'about.contributions': 'Beiträge',
 	'about.tmdb':
 		'Dieses Produkt verwendet die TMDB-API, wird aber von TMDB weder unterstützt noch zertifiziert.',
+	'about.wikidata':
+		'Filmkatalog und Merkmale für die Empfehlungen stammen aus Wikidata, veröffentlicht unter CC0.',
 	'about.team': 'MoovieFinder wird dir präsentiert von',
 };
 

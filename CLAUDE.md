@@ -163,7 +163,8 @@ Motivazioni in `docs/valutazione-toolchain.md`.
    - `swift/MoviesApp/Resources/movies-id-name.json` è un dump TMDB, come lo era `movies.json`, rimosso dal repo ma ancora nella history.
 - **Attribuzioni obbligatorie in UI:**
    - TMDB (logo + avviso "not endorsed or certified by TMDB");
-   - JustWatch per i dati dei provider (requisito dell'endpoint `/watch/providers`).
+   - JustWatch per i dati dei provider (requisito dell'endpoint `/watch/providers`);
+   - Wikidata (CC0) per catalogo e feature, non obbligatoria ma dovuta: in About. La CTA di contatto dell'originale è stata tolta (decisione del 08/10/2026).
 
 ## Pipeline dati (`pipeline/`)
 
@@ -269,7 +270,6 @@ Dettagli e riferimenti in `docs/analisi-codebase.md`.
 - **Filtro per piattaforme di streaming.** I provider sono dati TMDB/JustWatch: usarli per filtrare le raccomandazioni è in tensione con la regola "TMDB solo per la UI".
 - **Canale di aggiornamento dell'artefatto:** nuova build, EAS Update o download da un host statico.
 - **Uso commerciale:** richiede un accordo scritto con TMDB.
-- **Indirizzo per "Contattaci" in About.** L'originale apriva una bozza di mail senza destinatario; la nuova app fa lo stesso (`mailto:` vuoto) finché non c'è un indirizzo.
 - **Contenuti per adulti nel catalogo** (decisione del 07/10/2026, vedi `docs/specifica-ui.md`): la pipeline marca i film con generi Wikidata per adulti (P136) in una colonna `adult` di `movies`; il motore li esclude salvo impostazione **"Mostra contenuti per adulti"**, spenta per default; a runtime il flag `adult` di TMDB, che arriva già con il dettaglio, fa da rete di sicurezza sulla carta prima di mostrarla. Il flag TMDB non entra in pipeline per la regola "TMDB solo per la UI", non per un divieto dei termini; e non avrebbe comunque preso i titoli provocatori ma non pornografici, che restano fuori da ogni filtro.
 
 ## Commit
