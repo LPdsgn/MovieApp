@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Pressable, useWindowDimensions, View } from 'react-native';
+import { Pressable, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
 	runOnJS,
@@ -28,13 +28,26 @@ export const SwipeCard = React.forwardRef<
 	{
 		children: React.ReactNode;
 		restingRotation: number;
+		/** Solo la carta in cima riceve gesto e tap; le altre aspettano la promozione senza rimontare. */
+		interactive: boolean;
+		/** 0 = in cima: decide lo zIndex. */
+		depth: number;
 		enabled?: boolean;
 		onSwipe: (action: Action, source: Source) => void;
 		onPress?: () => void;
 		accessibilityLabel: string;
 	}
 >(function SwipeCard(
-	{ children, restingRotation, enabled = true, onSwipe, onPress, accessibilityLabel },
+	{
+		children,
+		restingRotation,
+		interactive,
+		depth,
+		enabled = true,
+		onSwipe,
+		onPress,
+		accessibilityLabel,
+	},
 	ref
 ) {
 	const { width, height } = useWindowDimensions();
@@ -65,11 +78,11 @@ export const SwipeCard = React.forwardRef<
 	// non si è mai attivato in questo tocco. onBegin = dito giù, onStart = superati 10 pt.
 	const dragged = useSharedValue(false);
 	const pressIfNotDragged = () => {
-		if (!dragged.get()) onPress?.();
+		if (interactive && !dragged.get()) onPress?.();
 	};
 
 	const pan = Gesture.Pan()
-		.enabled(enabled)
+		.enabled(enabled && interactive)
 		.minDistance(10)
 		.onBegin(() => {
 			dragged.set(false);
@@ -96,6 +109,7 @@ export const SwipeCard = React.forwardRef<
 		});
 
 	const cardStyle = useAnimatedStyle(() => ({
+		zIndex: 100 - depth,
 		transform: [
 			{ translateX: tx.get() },
 			{ translateY: ty.get() },
@@ -114,11 +128,13 @@ export const SwipeCard = React.forwardRef<
 
 	return (
 		<GestureDetector gesture={pan}>
-			<Animated.View style={cardStyle} className="z-10 w-full">
+			<Animated.View style={cardStyle} className="absolute w-full">
 				<Pressable
 					onPress={pressIfNotDragged}
 					accessibilityRole="button"
-					accessibilityLabel={accessibilityLabel}>
+					accessibilityLabel={accessibilityLabel}
+					accessibilityElementsHidden={!interactive}
+					importantForAccessibility={interactive ? 'auto' : 'no-hide-descendants'}>
 					{children}
 					<Animated.View style={yep} className="absolute top-4 left-4" pointerEvents="none">
 						<SwipeLabel kind="yep" />
@@ -137,20 +153,3 @@ export const SwipeCard = React.forwardRef<
 		</GestureDetector>
 	);
 });
-
-/** Carta dietro: solo rotazione di riposo, niente gesto. */
-export function DeckCard({
-	children,
-	restingRotation,
-}: {
-	children: React.ReactNode;
-	restingRotation: number;
-}) {
-	return (
-		<View
-			className="absolute z-0 w-full"
-			style={{ transform: [{ rotate: `${restingRotation}deg` }] }}>
-			{children}
-		</View>
-	);
-}

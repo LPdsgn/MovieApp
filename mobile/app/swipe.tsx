@@ -7,7 +7,7 @@ import { Pressable, View } from 'react-native';
 
 import { CircleButton } from '@/components/movie/circle-button';
 import { MovieCard, MovieCardError, MovieCardSkeleton } from '@/components/movie/movie-card';
-import { DeckCard, SwipeCard, type SwipeCardHandle } from '@/components/movie/swipe-card';
+import { SwipeCard, type SwipeCardHandle } from '@/components/movie/swipe-card';
 import { Screen } from '@/components/screen';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
@@ -45,7 +45,7 @@ export default function SwipeScreen() {
 		top.current?.fling(action);
 	};
 
-	const [first, ...behind] = deck.cards;
+	const first = deck.cards[0];
 
 	return (
 		<Screen>
@@ -83,28 +83,26 @@ export default function SwipeScreen() {
 								</Button>
 							</View>
 						)}
-						{[...behind].reverse().map((card) => (
-							<DeckCard key={card.qid} restingRotation={restingRotation(card.qid)}>
-								<Card card={card} />
-							</DeckCard>
-						))}
-						{first && (
+						{/* Stessa key e stesso componente per tutta la vita della carta: la promozione in cima è un cambio di prop, niente smontaggio. */}
+						{deck.cards.map((card, depth) => (
 							<SwipeCard
-								key={first.qid}
-								ref={top}
-								restingRotation={restingRotation(first.qid)}
+								key={card.qid}
+								ref={depth === 0 ? top : undefined}
+								depth={depth}
+								interactive={depth === 0}
+								restingRotation={restingRotation(card.qid)}
 								enabled={!busy}
 								accessibilityLabel={t('swipe.open')}
 								onPress={() =>
 									router.push({
 										pathname: '/movie/[tmdbId]',
-										params: { tmdbId: String(first.tmdbId) },
+										params: { tmdbId: String(card.tmdbId) },
 									})
 								}
-								onSwipe={(action, source) => onSwipe(first, action, source)}>
-								<Card card={first} />
+								onSwipe={(action, source) => onSwipe(card, action, source)}>
+								<Card card={card} />
 							</SwipeCard>
-						)}
+						))}
 					</View>
 				</View>
 
