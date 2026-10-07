@@ -87,4 +87,23 @@ export async function getFeatures(
 	return out;
 }
 
+/** Feature di più film in una query: { qid → { P136: [...], ... } }. Vuoto per i qid senza feature. */
+export async function getFeaturesFor(
+	db: SQLiteDatabase,
+	qids: number[]
+): Promise<Map<number, Record<string, number[]>>> {
+	const out = new Map<number, Record<string, number[]>>();
+	if (qids.length === 0) return out;
+	const rows = await db.getAllAsync<{ qid: number; property: string; value: number }>(
+		`SELECT qid, property, value FROM features WHERE qid IN (${qids.map(() => '?').join(',')})`,
+		...qids
+	);
+	for (const { qid, property, value } of rows) {
+		const f = out.get(qid) ?? {};
+		(f[property] ??= []).push(value);
+		out.set(qid, f);
+	}
+	return out;
+}
+
 export type { Neighbor } from './blob';

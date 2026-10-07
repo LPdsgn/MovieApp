@@ -4,31 +4,28 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { Text } from '@/components/ui/text';
-import { type ArtifactMeta, getNeighbors, readMeta } from '@/lib/artifact';
+import { type ArtifactMeta, readMeta } from '@/lib/artifact';
+import { loadCatalog, recommend, type Recommendation } from '@/lib/engine';
+import { useUserDb } from '@/lib/userdb/provider';
 
-const TITANIC_QID = 44578; // campione di riferimento, vedi docs/campioni-vicini.md
-
-/** Schermata provvisoria: verifica che l'artefatto sia caricato e leggibile. */
+/** Schermata provvisoria: verifica artefatto, database utente e motore, fino alle prime carte. */
 export default function Screen() {
-	const db = useSQLiteContext();
+	const artifact = useSQLiteContext();
+	const user = useUserDb();
 	const [meta, setMeta] = React.useState<ArtifactMeta | null>(null);
-	const [neighbors, setNeighbors] = React.useState<string>('');
+	const [cards, setCards] = React.useState<Recommendation[]>([]);
 	const [error, setError] = React.useState<string | null>(null);
 
 	React.useEffect(() => {
 		let cancelled = false;
 		(async () => {
 			try {
-				const m = await readMeta(db);
-				const n = await getNeighbors(db, TITANIC_QID);
+				const m = await readMeta(artifact);
+				const catalog = await loadCatalog(artifact);
+				const next = await recommend(artifact, catalog, user, { n: 3 });
 				if (cancelled) return;
 				setMeta(m);
-				setNeighbors(
-					n
-						.slice(0, 3)
-						.map((x) => `Q${x.qid} (${x.score.toFixed(3)})`)
-						.join(', ')
-				);
+				setCards(next);
 			} catch (e) {
 				if (!cancelled) setError(e instanceof Error ? e.message : String(e));
 			}
@@ -36,7 +33,7 @@ export default function Screen() {
 		return () => {
 			cancelled = true;
 		};
-	}, [db]);
+	}, [artifact, user]);
 
 	return (
 		<>
@@ -49,13 +46,15 @@ export default function Screen() {
 				) : meta ? (
 					<>
 						<Text className="font-mono text-sm">
-							artefatto {meta.dataVersion} · schema {meta.schemaVersion}
+							artefatto {meta.dataVersion} · schema {meta.schemaVersion} · {meta.movieCount}{' '}
+							film
 						</Text>
-						<Text className="font-mono text-sm">{meta.movieCount} film</Text>
-						<Text className="font-mono text-sm">{meta.neighborsAlgorithm}</Text>
-						<Text className="font-mono text-xs text-muted-foreground">
-							Titanic → {neighbors}
-						</Text>
+						{cards.map((c) => (
+							<Text key={c.qid} className="font-mono text-xs text-muted-foreground">
+								Q{c.qid} · tmdb {c.tmdbId} · p={c.propensity}
+								{c.explored ? ' · esplorazione' : ''}
+							</Text>
+						))}
 					</>
 				) : (
 					<Text className="text-muted-foreground">Caricamento…</Text>
