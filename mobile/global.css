@@ -4,7 +4,8 @@
 @import 'tw-animate-css';
 
 @theme {
-	--radius: 10px;
+	/* Raggio base dell'app Swift: 8 pt (docs/specifica-ui.md) */
+	--radius: 8px;
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -13,74 +14,65 @@
 	--spacing-hairline: hairlineWidth();
 }
 
+/*
+ * Tema solo scuro, come l'originale. Uniwind richiede le stesse variabili in ogni variante,
+ * quindi light e dark sono identiche e all'avvio si forza Uniwind.setTheme('dark').
+ * Palette dai colorset in swift/MoviesApp/Assets.xcassets: AccentColor #FFD400, AccentDark #FFC300,
+ * Gray-600 #797979, Gray-650 #5B5B5B, Gray-700 #3D3D3D, Gray-800 #1F1F1F, Gray-900 #0A0A0A.
+ * I grigi hanno nome `ink-*` per non sovrascrivere la palette gray di Tailwind.
+ */
 @layer theme {
 	:root {
 		@variant light {
-			--color-background: oklch(1 0 0);
-			--color-foreground: oklch(0.145 0 0);
-			--color-card: oklch(1 0 0);
-			--color-card-foreground: oklch(0.145 0 0);
-			--color-popover: oklch(1 0 0);
-			--color-popover-foreground: oklch(0.145 0 0);
-			--color-primary: oklch(0.205 0 0);
-			--color-primary-foreground: oklch(0.985 0 0);
-			--color-secondary: oklch(0.97 0 0);
-			--color-secondary-foreground: oklch(0.205 0 0);
-			--color-muted: oklch(0.97 0 0);
-			--color-muted-foreground: oklch(0.556 0 0);
-			--color-accent: oklch(0.97 0 0);
-			--color-accent-foreground: oklch(0.205 0 0);
-			--color-destructive: oklch(0.577 0.245 27.325);
-			--color-border: oklch(0.922 0 0);
-			--color-input: oklch(0.922 0 0);
-			--color-ring: oklch(0.708 0 0);
-			--color-chart-1: oklch(0.646 0.222 41.116);
-			--color-chart-2: oklch(0.6 0.118 184.704);
-			--color-chart-3: oklch(0.398 0.07 227.392);
-			--color-chart-4: oklch(0.828 0.189 84.429);
-			--color-chart-5: oklch(0.769 0.188 70.08);
-			--color-sidebar: oklch(0.985 0 0);
-			--color-sidebar-foreground: oklch(0.145 0 0);
-			--color-sidebar-primary: oklch(0.205 0 0);
-			--color-sidebar-primary-foreground: oklch(0.985 0 0);
-			--color-sidebar-accent: oklch(0.97 0 0);
-			--color-sidebar-accent-foreground: oklch(0.205 0 0);
-			--color-sidebar-border: oklch(0.922 0 0);
-			--color-sidebar-ring: oklch(0.708 0 0);
+			--color-background: #1f1f1f;
+			--color-foreground: #ffffff;
+			--color-card: #3d3d3d;
+			--color-card-foreground: #ffffff;
+			--color-popover: #3d3d3d;
+			--color-popover-foreground: #ffffff;
+			--color-primary: #ffd400;
+			--color-primary-foreground: #1f1f1f;
+			--color-secondary: #3d3d3d;
+			--color-secondary-foreground: #ffd400;
+			--color-muted: #5b5b5b;
+			--color-muted-foreground: #a3a3a3;
+			--color-accent: #ffc300;
+			--color-accent-foreground: #1f1f1f;
+			--color-destructive: oklch(0.704 0.191 22.216);
+			--color-border: #5b5b5b;
+			--color-input: #5b5b5b;
+			--color-ring: #ffd400;
+			--color-ink-600: #797979;
+			--color-ink-650: #5b5b5b;
+			--color-ink-700: #3d3d3d;
+			--color-ink-800: #1f1f1f;
+			--color-ink-900: #0a0a0a;
 		}
 
 		@variant dark {
-			--color-background: oklch(0.145 0 0);
-			--color-foreground: oklch(0.985 0 0);
-			--color-card: oklch(0.205 0 0);
-			--color-card-foreground: oklch(0.985 0 0);
-			--color-popover: oklch(0.205 0 0);
-			--color-popover-foreground: oklch(0.985 0 0);
-			--color-primary: oklch(0.922 0 0);
-			--color-primary-foreground: oklch(0.205 0 0);
-			--color-secondary: oklch(0.269 0 0);
-			--color-secondary-foreground: oklch(0.985 0 0);
-			--color-muted: oklch(0.269 0 0);
-			--color-muted-foreground: oklch(0.708 0 0);
-			--color-accent: oklch(0.269 0 0);
-			--color-accent-foreground: oklch(0.985 0 0);
+			--color-background: #1f1f1f;
+			--color-foreground: #ffffff;
+			--color-card: #3d3d3d;
+			--color-card-foreground: #ffffff;
+			--color-popover: #3d3d3d;
+			--color-popover-foreground: #ffffff;
+			--color-primary: #ffd400;
+			--color-primary-foreground: #1f1f1f;
+			--color-secondary: #3d3d3d;
+			--color-secondary-foreground: #ffd400;
+			--color-muted: #5b5b5b;
+			--color-muted-foreground: #a3a3a3;
+			--color-accent: #ffc300;
+			--color-accent-foreground: #1f1f1f;
 			--color-destructive: oklch(0.704 0.191 22.216);
-			--color-border: oklch(1 0 0 / 10%);
-			--color-input: oklch(1 0 0 / 15%);
-			--color-ring: oklch(0.556 0 0);
-			--color-chart-1: oklch(0.488 0.243 264.376);
-			--color-chart-2: oklch(0.696 0.17 162.48);
-			--color-chart-3: oklch(0.769 0.188 70.08);
-			--color-chart-4: oklch(0.627 0.265 303.9);
-			--color-chart-5: oklch(0.645 0.246 16.439);
-			--color-sidebar: oklch(0.205 0 0);
-			--color-sidebar-foreground: oklch(0.985 0 0);
-			--color-sidebar-primary: oklch(0.488 0.243 264.376);
-			--color-sidebar-primary-foreground: oklch(0.985 0 0);
-			--color-sidebar-accent: oklch(0.269 0 0);
-			--color-sidebar-accent-foreground: oklch(0.985 0 0);
-			--color-sidebar-border: oklch(1 0 0 / 10%);
-			--color-sidebar-ring: oklch(0.556 0 0);
+			--color-border: #5b5b5b;
+			--color-input: #5b5b5b;
+			--color-ring: #ffd400;
+			--color-ink-600: #797979;
+			--color-ink-650: #5b5b5b;
+			--color-ink-700: #3d3d3d;
+			--color-ink-800: #1f1f1f;
+			--color-ink-900: #0a0a0a;
 		}
 	}
 }
