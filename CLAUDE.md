@@ -58,6 +58,10 @@ pnpm dlx @react-native-reusables/cli@latest add switch alert-dialog --styling-li
 pnpm db:pull                  # copia pipeline/dist/moovie.sqlite in assets/db/moovie.db (ignorato da git)
 ```
 
+Variabili d'ambiente di `mobile/` (tutte opzionali, prefisso `EXPO_PUBLIC_` perché finiscono nel bundle):
+
+- `EXPO_PUBLIC_TMDB_PROXY_URL`: base URL del proxy TMDB; default l'URL del worker pubblicato.
+
 `proxy/` (dalla root con `pnpm --filter proxy <script>`):
 
 ```bash
@@ -82,7 +86,7 @@ uv run pytest tests/test_x.py::test_nome  # un solo test
 - **React Native Reusables nella variante Uniwind.** I componenti vengono copiati nel progetto e sono codice nostro. Poggiano su `@rn-primitives`, che dà già l'accessibilità.
 - **Uniwind**, piano gratuito (Tailwind 4). Non usare NativeWind: la v4 è su Tailwind 3 e la v5 è ancora RC.
 - Reanimated + Gesture Handler per il mazzo di carte e le animazioni.
-- TanStack Query per le chiamate di rete.
+- TanStack Query per le chiamate di rete. Client TMDB in `mobile/lib/tmdb/`: `index.ts` (fetch via proxy, tipi dei soli campi usati, `TmdbError` con lo status, retry solo su rete e 5xx), `hooks.ts` (`useMovie`, `prefetchMovie`, lingua dal dispositivo con `expo-localization`). Cache solo in memoria, un giorno.
 - `expo-sqlite` per i dati locali.
 - `expo-image` per le immagini.
 - Tema solo scuro, come l'originale. I colori di partenza sono i colorset in `swift/MoviesApp/Assets.xcassets/`.
