@@ -141,6 +141,7 @@ Motivazioni in `docs/valutazione-toolchain.md`.
    - `pre-commit`: Prettier, ESLint `--fix` e ruff sui file in stage, più `tsc --noEmit` se cambia `mobile/` o `proxy/`;
    - `commit-msg`: commitlint;
    - `pre-push`: jest, `node --test` o pytest, a seconda della cartella toccata.
+   - **Glob di lefthook:** `cartella/**` e `cartella/**.ts`, mai `cartella/**/*`: con quella forma `**/*` richiede almeno una sottocartella e un file alla radice (`proxy/README.md`) non attiva il job. Scoperto l'08/10/2026 con il pre-push che saltava i test del proxy.
 - **CI e CD:** i controlli girano su GitHub Actions, gratuite su un repo pubblico. EAS fa solo build e aggiornamenti, perché il piano gratuito include appena 60 minuti al mese di workflow.
 - **Trigger della CI:** per ora solo `pull_request` e avvio manuale (`workflow_dispatch`), niente trigger su push.
 - **Insidie della CI:**

@@ -10,23 +10,23 @@ pre-commit:
 
       - name: eslint
         root: mobile/
-        glob: 'mobile/**/*.{js,jsx,ts,tsx}'
+        glob: 'mobile/**.{js,jsx,ts,tsx}'
         run: pnpm exec eslint --fix {staged_files}
         stage_fixed: true
 
       - name: typecheck
         root: mobile/
-        glob: 'mobile/**/*.{ts,tsx}'
+        glob: 'mobile/**.{ts,tsx}'
         run: pnpm typecheck
 
       - name: typecheck-proxy
         root: proxy/
-        glob: 'proxy/**/*.ts'
+        glob: 'proxy/**.ts'
         run: pnpm typecheck
 
       - name: ruff
         root: pipeline/
-        glob: 'pipeline/**/*.py'
+        glob: 'pipeline/**.py'
         run: uv run ruff format {staged_files} && uv run ruff check --fix {staged_files}
         stage_fixed: true
 
@@ -40,15 +40,15 @@ pre-push:
    jobs:
       - name: jest
         root: mobile/
-        glob: 'mobile/**/*'
+        glob: 'mobile/**'
         run: pnpm test
 
       - name: node-test
         root: proxy/
-        glob: 'proxy/**/*'
+        glob: 'proxy/**'
         run: pnpm test
 
       - name: pytest
         root: pipeline/
-        glob: 'pipeline/**/*'
+        glob: 'pipeline/**'
         run: uv run pytest
