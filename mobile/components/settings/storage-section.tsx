@@ -92,7 +92,7 @@ function ConfirmButton({
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
-				<Button variant={variant} size="lg" className="rounded-lg">
+				<Button variant={variant} size="lg">
 					<Text
 						className={
 							variant === 'default'
