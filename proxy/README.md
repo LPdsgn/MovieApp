@@ -2,6 +2,8 @@
 
 Proxy TMDB su Cloudflare Workers. Tiene la chiave fuori dal client (vincolo in `CLAUDE.md`, sezione "Dati").
 
+Pubblicato su `https://mooviefinder-tmdb-proxy.luigipdt-dev.workers.dev` (deploy del 07/10/2026).
+
 Inoltra solo `GET /3/movie/{id}` con `language` (it-IT, en-US, de-DE) e `append_to_response` limitato a `credits` e `watch/providers`. Tutto il resto risponde 404. Lo status di TMDB passa invariato, con cache di un giorno all'edge.
 
 Le immagini non passano di qui: gli URL di `image.tmdb.org` non richiedono chiave.

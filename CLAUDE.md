@@ -143,7 +143,7 @@ Motivazioni in `docs/valutazione-toolchain.md`.
    - La pipeline non usa TMDB. L'unica eccezione è la colonna opzionale di popolarità (vedi Pipeline), che resta **disattivata** finché non c'è un accordo scritto con TMDB.
    - Su disco l'app salva solo id, mai contenuti TMDB.
 - **Wikidata (CC0)** è l'unica fonte di catalogo e feature. Il collegamento ai film TMDB passa dalla proprietà **P4947** (TMDB movie ID).
-- **Chiave TMDB mai nel client.** Le chiamate passano dal proxy in `proxy/` (Cloudflare Workers), che aggiunge la chiave lato server e inoltra solo `GET /3/movie/{id}` con `language` e `append_to_response` limitati a `credits` e `watch/providers`: ogni nuovo endpoint va aggiunto alla lista chiusa. La chiave in `swift/MoviesApp/Models/NetworkManager.swift` è pubblica e va considerata compromessa.
+- **Chiave TMDB mai nel client.** Le chiamate passano dal proxy in `proxy/` (Cloudflare Workers, `https://mooviefinder-tmdb-proxy.luigipdt-dev.workers.dev`), che aggiunge la chiave lato server e inoltra solo `GET /3/movie/{id}` con `language` e `append_to_response` limitati a `credits` e `watch/providers`: ogni nuovo endpoint va aggiunto alla lista chiusa. La chiave in `swift/MoviesApp/Models/NetworkManager.swift` è pubblica e va considerata compromessa.
 - **Non portare né derivare dati dai file dell'app originale:**
    - i 3 `.mlmodel` sono stati addestrati su metadati TMDB;
    - `swift/MoviesApp/Resources/movies-id-name.json` è un dump TMDB, come lo era `movies.json`, rimosso dal repo ma ancora nella history.
