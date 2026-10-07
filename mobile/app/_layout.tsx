@@ -13,6 +13,7 @@ import { ArtifactProvider } from '@/lib/artifact/provider';
 import { NAV_THEME } from '@/lib/theme';
 import { queryClient } from '@/lib/tmdb/hooks';
 import { UserDbProvider } from '@/lib/userdb/provider';
+import { t } from '@/lib/i18n';
 
 export {
 	// Catch any errors thrown by the Layout component.
@@ -47,6 +48,18 @@ export default function RootLayout() {
 											options={{ presentation: 'fullScreenModal' }}
 										/>
 										<Stack.Screen name="history" />
+										<Stack.Screen
+											name="settings/platforms"
+											options={{ title: t('settings.platforms') }}
+										/>
+										<Stack.Screen
+											name="settings/storage"
+											options={{ title: t('settings.storage') }}
+										/>
+										<Stack.Screen
+											name="settings/about"
+											options={{ title: t('settings.about') }}
+										/>
 										<Stack.Screen
 											name="movie/[tmdbId]"
 											options={{
