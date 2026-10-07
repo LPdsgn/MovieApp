@@ -1,82 +1,66 @@
-import { Button } from '@/components/ui/button';
-import { Icon } from '@/components/ui/icon';
-import { Text } from '@/components/ui/text';
-import { Link, Stack } from 'expo-router';
-import { MoonStarIcon, StarIcon, SunIcon } from 'lucide-react-native';
+import { Stack } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import * as React from 'react';
-import { Image, type ImageStyle, View } from 'react-native';
-import { Uniwind, useUniwind } from 'uniwind';
+import { View } from 'react-native';
 
-const LOGO = {
-	light: require('@/assets/images/react-native-reusables-light.png'),
-	dark: require('@/assets/images/react-native-reusables-dark.png'),
-};
+import { Text } from '@/components/ui/text';
+import { type ArtifactMeta, getNeighbors, readMeta } from '@/lib/artifact';
 
-const SCREEN_OPTIONS = {
-	title: 'React Native Reusables',
-	headerTransparent: true,
-	headerRight: () => <ThemeToggle />,
-};
+const TITANIC_QID = 44578; // campione di riferimento, vedi docs/campioni-vicini.md
 
-const IMAGE_STYLE: ImageStyle = {
-	height: 76,
-	width: 76,
-};
-
+/** Schermata provvisoria: verifica che l'artefatto sia caricato e leggibile. */
 export default function Screen() {
-	const { theme } = useUniwind();
+	const db = useSQLiteContext();
+	const [meta, setMeta] = React.useState<ArtifactMeta | null>(null);
+	const [neighbors, setNeighbors] = React.useState<string>('');
+	const [error, setError] = React.useState<string | null>(null);
+
+	React.useEffect(() => {
+		let cancelled = false;
+		(async () => {
+			try {
+				const m = await readMeta(db);
+				const n = await getNeighbors(db, TITANIC_QID);
+				if (cancelled) return;
+				setMeta(m);
+				setNeighbors(
+					n
+						.slice(0, 3)
+						.map((x) => `Q${x.qid} (${x.score.toFixed(3)})`)
+						.join(', ')
+				);
+			} catch (e) {
+				if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+			}
+		})();
+		return () => {
+			cancelled = true;
+		};
+	}, [db]);
 
 	return (
 		<>
-			<Stack.Screen options={SCREEN_OPTIONS} />
-			<View className="flex-1 items-center justify-center gap-8 p-4">
-				<Image source={LOGO[theme ?? 'light']} style={IMAGE_STYLE} resizeMode="contain" />
-				<View className="gap-2 p-4">
-					<Text className="text-muted-foreground ios:text-foreground font-mono text-sm">
-						1. Edit <Text variant="code">app/index.tsx</Text> to get started.
+			<Stack.Screen options={{ title: 'MoovieFinder' }} />
+			<View className="flex-1 items-center justify-center gap-2 p-6">
+				{error ? (
+					<Text className="text-destructive" accessibilityRole="alert">
+						{error}
 					</Text>
-					<Text className="text-muted-foreground ios:text-foreground font-mono text-sm">
-						2. Save to see your changes instantly.
-					</Text>
-				</View>
-				<View className="flex-row gap-2">
-					<Link href="https://reactnativereusables.com" asChild>
-						<Button>
-							<Text>Browse the Docs</Text>
-						</Button>
-					</Link>
-					<Link href="https://github.com/founded-labs/react-native-reusables" asChild>
-						<Button variant="ghost">
-							<Text>Star the Repo</Text>
-							<Icon as={StarIcon} />
-						</Button>
-					</Link>
-				</View>
+				) : meta ? (
+					<>
+						<Text className="font-mono text-sm">
+							artefatto {meta.dataVersion} · schema {meta.schemaVersion}
+						</Text>
+						<Text className="font-mono text-sm">{meta.movieCount} film</Text>
+						<Text className="font-mono text-sm">{meta.neighborsAlgorithm}</Text>
+						<Text className="font-mono text-xs text-muted-foreground">
+							Titanic → {neighbors}
+						</Text>
+					</>
+				) : (
+					<Text className="text-muted-foreground">Caricamento…</Text>
+				)}
 			</View>
 		</>
-	);
-}
-
-const THEME_ICONS = {
-	light: SunIcon,
-	dark: MoonStarIcon,
-};
-
-function ThemeToggle() {
-	const { theme } = useUniwind();
-
-	function toggleTheme() {
-		const newTheme = theme === 'dark' ? 'light' : 'dark';
-		Uniwind.setTheme(newTheme);
-	}
-
-	return (
-		<Button
-			onPressIn={toggleTheme}
-			size="icon"
-			variant="ghost"
-			className="rounded-full ios:size-9 web:mx-4">
-			<Icon as={THEME_ICONS[theme ?? 'light']} className="size-5" />
-		</Button>
 	);
 }

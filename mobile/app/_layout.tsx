@@ -1,5 +1,6 @@
 import '@/global.css';
 
+import { ArtifactProvider } from '@/lib/artifact/provider';
 import { NAV_THEME } from '@/lib/theme';
 import { ThemeProvider } from 'expo-router/react-navigation';
 import { PortalHost } from '@rn-primitives/portal';
@@ -18,7 +19,9 @@ export default function RootLayout() {
 	return (
 		<ThemeProvider value={NAV_THEME[theme ?? 'light']}>
 			<StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
-			<Stack />
+			<ArtifactProvider>
+				<Stack />
+			</ArtifactProvider>
 			<PortalHost />
 		</ThemeProvider>
 	);
