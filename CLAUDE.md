@@ -124,7 +124,7 @@ Motivazioni in `docs/valutazione-toolchain.md`.
 - **ESLint fissato a `^9`:** `eslint-plugin-react` 7, incluso da `eslint-config-expo`, non funziona con ESLint 10.
 - **TypeScript 6 non include più da solo i pacchetti `@types`:** i tipi globali servono elencati in `compilerOptions.types` (oggi `jest`). Senza, i file `*.test.ts` non passano il typecheck.
 - **`mobile/expo-types.d.ts`** contiene il riferimento a `expo/types` (per esempio `*.css`), perché `expo-env.d.ts` è generato da `expo start` ed escluso da git. Senza, il typecheck fallisce in CI e negli hook.
-- **Classi Tailwind:** i colori del tema Uniwind stanno in `@layer theme`, non in `@theme`, quindi per Tailwind sono classi sconosciute e Prettier le mette in testa. È normale.
+- **Classi Tailwind:** l'ordine lo decide `prettier-plugin-tailwindcss` leggendo `mobile/global.css`. Se il foglio di stile non si carica (è successo allo scaffolding, con un errore di serializzazione), i colori del tema Uniwind risultano classi sconosciute e finiscono in testa; con il foglio caricato stanno al loro posto. Se `pnpm format:check` segnala solo riordini di classi in file non toccati, è cambiato questo, non il codice: riformattare e committare come `style`.
 - **Hook:**
    - `pre-commit`: Prettier, ESLint `--fix` e ruff sui file in stage, più `tsc --noEmit` se cambia `mobile/` o `proxy/`;
    - `commit-msg`: commitlint;
