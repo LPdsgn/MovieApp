@@ -35,6 +35,16 @@ export function CircleButton({
 	children?: React.ReactNode;
 }) {
 	const dimension: ViewStyle = { width: size, height: size, borderRadius: size / 2 };
+	// Skeumorfismo dell'originale: ombra esterna nera 20% (sparisce da premuto), riflesso bianco sul bordo
+	// superiore e ombra interna sul bordo inferiore. Le ombre inset esistono da React Native 0.76.
+	const relief = (pressed: boolean): ViewStyle => ({
+		boxShadow: [
+			...(pressed ? [] : ['0 5px 5px rgba(0, 0, 0, 0.2)']),
+			'inset 0 2px 1px rgba(255, 255, 255, 0.25)',
+			'inset 0 -3px 3px rgba(0, 0, 0, 0.18)',
+		].join(', '),
+		transform: [{ scale: pressed ? 0.95 : 1 }],
+	});
 	return (
 		<Pressable
 			accessibilityRole="button"
@@ -43,9 +53,9 @@ export function CircleButton({
 				if (haptic) Haptics.impactAsync(haptic).catch(() => {});
 				onPress?.(e);
 			}}
-			style={dimension}
+			style={({ pressed }) => [dimension, relief(pressed)]}
 			className={cn(
-				'items-center justify-center shadow-md shadow-black/20 active:scale-95 active:shadow-none',
+				'items-center justify-center',
 				variant === 'primary' ? 'bg-primary' : 'bg-secondary',
 				className
 			)}

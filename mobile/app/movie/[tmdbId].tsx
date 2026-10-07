@@ -1,23 +1,34 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { XIcon } from 'lucide-react-native';
 import * as React from 'react';
-import { ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
 import { MovieCardError, MovieCardSkeleton } from '@/components/movie/movie-card';
 import { GenreChips, MovieMeta, StarsRating } from '@/components/movie/movie-meta';
 import { PosterImage } from '@/components/movie/poster-image';
 import { Screen } from '@/components/screen';
+import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
+import { t } from '@/lib/i18n';
 import { useMovie } from '@/lib/tmdb/hooks';
 
 /** Provvisoria: poster, titolo, generi, trama. Cast, provider e segnalibro arrivano con il task successivo. */
 export default function MovieScreen() {
 	const { tmdbId } = useLocalSearchParams<{ tmdbId: string }>();
+	const router = useRouter();
 	const movie = useMovie(Number(tmdbId));
 	return (
 		<Screen>
-			<Stack.Screen options={{ title: '', headerLargeTitle: false }} />
+			<Pressable
+				onPress={() => router.back()}
+				accessibilityRole="button"
+				accessibilityLabel={t('common.close')}
+				hitSlop={12}
+				className="absolute top-5 right-4 z-10 h-10 w-10 items-center justify-center rounded-full bg-black/40">
+				<Icon as={XIcon} className="text-white" size={20} />
+			</Pressable>
 			<ScrollView contentContainerClassName="pb-24">
-				<View className="px-4 pt-safe">
+				<View className="px-4 pt-8">
 					{movie.isPending && <MovieCardSkeleton />}
 					{movie.isError && (
 						<MovieCardError message={movie.error.message} onRetry={() => movie.refetch()} />

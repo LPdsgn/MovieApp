@@ -47,7 +47,17 @@ export default function RootLayout() {
 											options={{ presentation: 'fullScreenModal' }}
 										/>
 										<Stack.Screen name="history" />
-										<Stack.Screen name="movie/[tmdbId]" />
+										<Stack.Screen
+											name="movie/[tmdbId]"
+											options={{
+												// Foglio nativo con maniglia e chiusura trascinando, come il dettaglio dell'originale.
+												presentation: 'formSheet',
+												headerShown: false,
+												sheetGrabberVisible: true,
+												sheetAllowedDetents: [0.92],
+												sheetCornerRadius: 16,
+											}}
+										/>
 									</Stack>
 								</UserDbProvider>
 							</ArtifactProvider>

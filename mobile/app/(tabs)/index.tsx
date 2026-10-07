@@ -12,6 +12,7 @@ import Animated, {
 	withTiming,
 } from 'react-native-reanimated';
 
+import { CircleButton } from '@/components/movie/circle-button';
 import { Screen } from '@/components/screen';
 import { Image } from '@/components/styled';
 import { Icon } from '@/components/ui/icon';
@@ -45,17 +46,14 @@ export default function DiscoverScreen() {
 						className="items-center justify-center"
 						style={{ width: BUTTON, height: BUTTON }}>
 						<Pulse />
-						<Pressable
-							accessibilityRole="button"
+						<CircleButton
+							size={BUTTON}
+							variant="secondary"
+							haptic={Haptics.ImpactFeedbackStyle.Rigid}
 							accessibilityLabel={t('discover.cta')}
-							onPress={() => {
-								Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid).catch(() => {});
-								router.push('/swipe');
-							}}
-							style={{ width: BUTTON, height: BUTTON, borderRadius: BUTTON / 2 }}
-							className="items-center justify-center bg-secondary shadow-lg shadow-black/30 active:scale-95">
+							onPress={() => router.push('/swipe')}>
 							<Image source={POPCORN} contentFit="cover" className="h-[70%] w-[70%]" />
-						</Pressable>
+						</CircleButton>
 					</View>
 					<Text className="text-2xl font-semibold text-foreground">{t('discover.cta')}</Text>
 				</View>
