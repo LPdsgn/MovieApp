@@ -4,7 +4,7 @@ import sqlite3
 from collections.abc import Iterable
 from pathlib import Path
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 SCHEMA = """
 CREATE TABLE meta (
@@ -20,7 +20,8 @@ CREATE TABLE movies (
     sitelinks  INTEGER NOT NULL,
     released   TEXT,              -- ISO 8601 (YYYY-MM-DD), prima data di P577; NULL = l'app lo tratta come non uscito
     runtime    INTEGER,           -- minuti, da P2047
-    popularity REAL               -- TMDB, NULL finché la fonte resta disattivata
+    popularity REAL,              -- TMDB, NULL finché la fonte resta disattivata
+    adult      INTEGER NOT NULL DEFAULT 0  -- 1 se fra i generi (P136) c'è film pornografico o una sottoclasse
 );
 
 -- Feature come insiemi di QID per proprietà (P136, P57, ...), indipendenti dalla lingua.

@@ -1,4 +1,4 @@
-from moovie_pipeline.features import Entity, iso_date, minutes, parse, truthy
+from moovie_pipeline.features import Entity, is_adult, iso_date, minutes, parse, truthy
 
 
 def item(qid, rank="normal"):
@@ -56,3 +56,10 @@ def test_parse_entity():
 
 def test_parse_entity_without_claims():
     assert parse(1, {}) == Entity(1, None, None, {})
+
+
+def test_is_adult_only_for_pornographic_genres():
+    assert is_adult(Entity(1, None, None, {"P136": [185529]}))  # film pornografico
+    assert is_adult(Entity(1, None, None, {"P136": [471839, 931552]}))  # una sottoclasse basta
+    assert not is_adult(Entity(1, None, None, {"P136": [599558]}))  # film erotico: no
+    assert not is_adult(Entity(1, None, None, {}))

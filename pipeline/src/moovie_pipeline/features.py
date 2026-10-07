@@ -25,6 +25,31 @@ FEATURE_PROPS = (
     "P344",  # fotografia
 )
 RELEASED = "P577"
+# "Film pornografico" (Q185529) e le sue sottoclassi su Wikidata (wdt:P279*), al 08/10/2026: 18 generi,
+# 47 film nel catalogo. Il genere "film erotico" (Q599558, 218 film) resta fuori: non è pornografia.
+# Il flag TMDB `adult` non entra qui per la regola "TMDB solo per la UI" (CLAUDE.md).
+ADULT_GENRES = frozenset(
+    {
+        185529,
+        931552,
+        3318957,
+        4373044,
+        10505214,
+        16254232,
+        20649407,
+        20965835,
+        62015757,
+        85877822,
+        97016664,
+        123851043,
+        125719481,
+        128145358,
+        128150456,
+        140380310,
+        141410241,
+        141533770,
+    }
+)
 RUNTIME = "P2047"
 MINUTES_PER_UNIT = {
     "http://www.wikidata.org/entity/Q7727": 1.0,  # minuto
@@ -83,6 +108,10 @@ def parse(qid: int, entity: dict[str, Any]) -> Entity:
     )
 
 
+def is_adult(entity: Entity) -> bool:
+    return any(g in ADULT_GENRES for g in entity.features.get("P136", []))
+
+
 def fetch(qids: list[int], cache_dir: Path) -> list[Entity]:
     """Scarica le entità mancanti dalla cache JSONL e la aggiorna blocco per blocco."""
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -119,8 +148,8 @@ def build(out: Path, min_sitelinks: int, cache_dir: Path) -> int:
     conn = artifact.connect(out)
     with conn:
         conn.executemany(
-            "UPDATE movies SET released = ?, runtime = ? WHERE qid = ?",
-            [(e.released, e.runtime, e.qid) for e in ents],
+            "UPDATE movies SET released = ?, runtime = ?, adult = ? WHERE qid = ?",
+            [(e.released, e.runtime, int(is_adult(e)), e.qid) for e in ents],
         )
         rows = [(e.qid, p, v) for e in ents for p, ids in e.features.items() for v in ids]
         conn.executemany("INSERT INTO features VALUES (?, ?, ?)", rows)
