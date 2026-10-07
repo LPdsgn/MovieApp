@@ -138,6 +138,14 @@ Fuori da Reusables: `expo-image` ed `expo-linear-gradient`, avvolti una sola vol
 
 Solo scuro: `light` e `dark` in `global.css` definiscono gli stessi valori, perché Uniwind richiede le stesse variabili in ogni variante, e all'avvio si chiama `Uniwind.setTheme('dark')`. Token: `background` Gray-800, `card` Gray-700, `primary` AccentColor con `primary-foreground` Gray-800, `secondary` Gray-700 con `secondary-foreground` AccentColor, `muted` Gray-650, `muted-foreground` Gray-600, `accent` AccentDark, `border` Gray-650, `destructive` il rosso del template. Il gradiente di sfondo è un componente `Screen`. `lib/theme.ts` allineato agli stessi valori per React Navigation.
 
-## Punto aperto emerso dagli screenshot
+## Contenuti per adulti (decisione del 07/10/2026)
 
-Nello storico è comparso un film con titolo e poster a sfondo sessuale ("How to Plan an Orgy in a Small Town"). Il catalogo Wikidata non filtra i contenuti per adulti e il flag `adult` di TMDB non si può usare per decidere le raccomandazioni. Da valutare un filtro sulle feature Wikidata (genere P136) in pipeline.
+Nello storico è comparso un film con titolo e poster a sfondo sessuale ("How to Plan an Orgy in a Small Town"). È una commedia del 2015 con `adult: false` su TMDB: il flag marca la pornografia, non i titoli provocatori, quindi non l'avrebbe fermato. Il catalogo Wikidata non filtra nulla.
+
+Scelta, su tre livelli:
+
+1. **Pipeline:** colonna `adult` in `movies`, vera se il film ha fra i generi (P136) uno dei QID dei generi per adulti (da verificare su Wikidata: film pornografico e sottogeneri). Il film resta nel catalogo, così l'impostazione può riattivarlo.
+2. **Motore:** esclude i film `adult` salvo impostazione **"Mostra contenuti per adulti"** in Impostazioni, spenta per default (chiave `show_adult` in `settings`).
+3. **Runtime:** il flag `adult` di TMDB, già presente nel dettaglio che l'app scarica per ogni carta, scarta la carta prima di mostrarla se l'impostazione è spenta. È un filtro di presentazione, coerente con "TMDB solo per la UI", e non entra né in pipeline né nel motore: la regola è nostra, non un divieto dei termini TMDB.
+
+I titoli provocatori ma non pornografici restano fuori da ogni filtro: non c'è un dato che li distingua.
