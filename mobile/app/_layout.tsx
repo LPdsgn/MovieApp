@@ -2,6 +2,7 @@ import '@/global.css';
 
 import { ArtifactProvider } from '@/lib/artifact/provider';
 import { NAV_THEME } from '@/lib/theme';
+import { UserDbProvider } from '@/lib/userdb/provider';
 import { ThemeProvider } from 'expo-router/react-navigation';
 import { PortalHost } from '@rn-primitives/portal';
 import { Stack } from 'expo-router';
@@ -20,7 +21,9 @@ export default function RootLayout() {
 		<ThemeProvider value={NAV_THEME[theme ?? 'light']}>
 			<StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
 			<ArtifactProvider>
-				<Stack />
+				<UserDbProvider>
+					<Stack />
+				</UserDbProvider>
 			</ArtifactProvider>
 			<PortalHost />
 		</ThemeProvider>
