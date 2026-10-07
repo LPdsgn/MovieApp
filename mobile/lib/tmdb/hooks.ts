@@ -30,8 +30,14 @@ export function useMovie(tmdbId: number | null, language: Language = deviceLangu
 
 /** Scarica in anticipo le carte che stanno dietro a quella visibile. */
 export function prefetchMovie(tmdbId: number, language: Language = deviceLanguage()) {
-	return queryClient.prefetchQuery({
-		queryKey: movieQueryKey(tmdbId, language),
-		queryFn: () => fetchMovie(tmdbId, language),
-	});
+	// query() al posto del deprecato prefetchQuery(); l'errore lo vedrà useMovie, qui si ignora.
+	return queryClient
+		.query({
+			queryKey: movieQueryKey(tmdbId, language),
+			queryFn: () => fetchMovie(tmdbId, language),
+		})
+		.then(
+			() => undefined,
+			() => undefined
+		);
 }
