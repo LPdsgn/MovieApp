@@ -3,6 +3,7 @@ import type { Neighbor } from '@/lib/artifact/blob';
 import {
 	type CatalogEntry,
 	type Features,
+	isEligible,
 	isReleased,
 	jaccard,
 	pickCards,
@@ -21,6 +22,7 @@ const entry = (
 	tmdbId: qid * 10,
 	sitelinks,
 	released,
+	adult: false,
 });
 
 // Generatore deterministico: restituisce in sequenza i valori dati, poi 0.5.
@@ -90,6 +92,13 @@ describe('rerank', () => {
 		expect(isReleased(entry(1, 10, '2026-10-07'), '2026-10-07')).toBe(true);
 		expect(isReleased(entry(1, 10, '2026-10-08'), '2026-10-07')).toBe(false);
 		expect(isReleased(entry(1, 10, null), '2026-10-07')).toBe(false);
+	});
+
+	test('isEligible: i film per adulti solo con l’impostazione attiva', () => {
+		const adult = { ...entry(1), adult: true };
+		expect(isEligible(adult, '2026-10-07', false)).toBe(false);
+		expect(isEligible(adult, '2026-10-07', true)).toBe(true);
+		expect(isEligible(entry(1), '2026-10-07', false)).toBe(true);
 	});
 
 	test('jaccard', () => {

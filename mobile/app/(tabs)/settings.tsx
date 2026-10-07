@@ -1,13 +1,16 @@
 import { type Href, Link } from 'expo-router';
 import { ChevronRightIcon } from 'lucide-react-native';
 import * as React from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, Switch, View } from 'react-native';
 
 import { Screen } from '@/components/screen';
 import { Icon } from '@/components/ui/icon';
 import { Separator } from '@/components/ui/separator';
 import { Text } from '@/components/ui/text';
 import { type Key, t } from '@/lib/i18n';
+import { getShowAdult, setShowAdult } from '@/lib/preferences';
+import { COLORS } from '@/lib/theme';
+import { useUserDb } from '@/lib/userdb/provider';
 
 const ROWS: { href: Href; label: Key }[] = [
 	{ href: '/settings/platforms', label: 'settings.platforms' },
@@ -17,6 +20,21 @@ const ROWS: { href: Href; label: Key }[] = [
 
 /** Impostazioni: lista piatta con tre righe, come `SettingsTab`. */
 export default function SettingsScreen() {
+	const user = useUserDb();
+	const [showAdult, setShowAdultState] = React.useState<boolean | null>(null);
+	React.useEffect(() => {
+		let cancelled = false;
+		getShowAdult(user).then((v) => {
+			if (!cancelled) setShowAdultState(v);
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [user]);
+	const toggleAdult = (value: boolean) => {
+		setShowAdultState(value);
+		setShowAdult(user, value).catch(() => {});
+	};
 	return (
 		<Screen>
 			<View className="flex-1 pt-safe">
@@ -41,6 +59,18 @@ export default function SettingsScreen() {
 							</Link>
 						</React.Fragment>
 					))}
+					<Separator className="bg-white/10" />
+					<View className="flex-row items-center justify-between py-4">
+						<Text className="text-lg text-foreground">{t('settings.adult')}</Text>
+						<Switch
+							value={showAdult ?? false}
+							disabled={showAdult === null}
+							onValueChange={toggleAdult}
+							trackColor={{ true: COLORS.accent, false: COLORS.ink650 }}
+							thumbColor={COLORS.white}
+							accessibilityLabel={t('settings.adult')}
+						/>
+					</View>
 					<Separator className="bg-white/10" />
 				</View>
 			</View>

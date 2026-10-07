@@ -12,7 +12,7 @@ import {
 	type Card,
 	type CatalogEntry,
 	ENGINE,
-	isReleased,
+	isEligible,
 	pickCards,
 	rank,
 	rerank,
@@ -31,10 +31,10 @@ export interface Catalog {
 /** Tutto il catalogo in memoria: ~28.600 voci, poche MB. Si carica una volta per sessione. */
 export async function loadCatalog(artifact: SQLiteDatabase): Promise<Catalog> {
 	const rows = await artifact.getAllAsync<CatalogEntry>(
-		'SELECT qid, tmdb_id AS tmdbId, sitelinks, released FROM movies ORDER BY sitelinks DESC, qid'
+		'SELECT qid, tmdb_id AS tmdbId, sitelinks, released, adult FROM movies ORDER BY sitelinks DESC, qid'
 	);
 	return {
-		byQid: new Map(rows.map((r) => [r.qid, r])),
+		byQid: new Map(rows.map((r) => [r.qid, { ...r, adult: Boolean(r.adult) }])),
 		popular: rows.slice(0, ENGINE.poolSize).map((r) => r.qid),
 		maxSitelinks: rows[0]?.sitelinks ?? 1,
 	};
@@ -49,6 +49,8 @@ export interface RecommendOptions {
 	rng?: () => number;
 	/** Film da non proporre oltre a quelli già visti: le carte già nel mazzo. */
 	exclude?: Iterable<number>;
+	/** Impostazione "Mostra contenuti per adulti"; default spenta. */
+	showAdult?: boolean;
 }
 
 export interface Recommendation extends Card {
@@ -60,7 +62,13 @@ export async function recommend(
 	artifact: SQLiteDatabase,
 	catalog: Catalog,
 	user: Db,
-	{ n, today = new Date().toISOString().slice(0, 10), rng, exclude }: RecommendOptions
+	{
+		n,
+		today = new Date().toISOString().slice(0, 10),
+		rng,
+		exclude,
+		showAdult = false,
+	}: RecommendOptions
 ): Promise<Recommendation[]> {
 	const [votes, seen] = await Promise.all([getVotes(user), getSeenQids(user)]);
 	for (const qid of exclude ?? []) seen.add(qid);
@@ -70,7 +78,7 @@ export async function recommend(
 
 	const eligible = (qid: number) => {
 		const entry = catalog.byQid.get(qid);
-		return !!entry && isReleased(entry, today);
+		return !!entry && isEligible(entry, today, showAdult);
 	};
 	const affinity = retrieve(votes, neighborsOf, catalog.popular, seen);
 	const shortlist = rank(affinity, catalog.byQid, catalog.maxSitelinks)

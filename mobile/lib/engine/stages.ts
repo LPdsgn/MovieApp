@@ -26,6 +26,8 @@ export interface CatalogEntry {
 	sitelinks: number;
 	/** ISO YYYY-MM-DD; null = sconosciuta, trattata come non uscito. */
 	released: string | null;
+	/** Generi Wikidata per adulti: escluso salvo impostazione. */
+	adult: boolean;
 }
 
 /** { P136: [qid, ...], P179: [...] } */
@@ -95,6 +97,11 @@ export function rank(
 
 export function isReleased(entry: CatalogEntry, today: string): boolean {
 	return entry.released !== null && entry.released <= today;
+}
+
+/** Proponibile: uscito e, se per adulti, solo con l'impostazione attiva. */
+export function isEligible(entry: CatalogEntry, today: string, showAdult: boolean): boolean {
+	return isReleased(entry, today) && (showAdult || !entry.adult);
 }
 
 function featureSet(f: Features | undefined): Set<string> {

@@ -3,6 +3,7 @@ import * as React from 'react';
 
 import { readMeta } from '@/lib/artifact';
 import { type Catalog, ENGINE, loadCatalog, recommend, type Recommendation } from '@/lib/engine';
+import { getShowAdult } from '@/lib/preferences';
 import { prefetchMovie } from '@/lib/tmdb/hooks';
 import { type Action, type Db, recordEvent, type Source } from '@/lib/userdb';
 
@@ -31,6 +32,10 @@ export interface Deck {
 	error: Error | null;
 	/** Salva l'evento **prima** di chiedere la carta successiva (CLAUDE.md, "Swipe persi o applicati tardi"). */
 	swipe: (card: Recommendation, action: Action, source: Source) => Promise<void>;
+	/** Toglie una carta senza evento (non è un giudizio dell'utente) e la rimpiazza: per il flag adult di TMDB. */
+	skip: (card: Recommendation) => Promise<void>;
+	/** Impostazione "Mostra contenuti per adulti" letta all'avvio del mazzo. */
+	showAdult: boolean;
 	reload: () => void;
 }
 
@@ -44,15 +49,28 @@ export function useDeck(artifact: SQLiteDatabase, user: Db): Deck {
 		error: null,
 	});
 	const versionRef = React.useRef('');
+	const showAdultRef = React.useRef(false);
+	const [showAdult, setShowAdultState] = React.useState(false);
+	// Carte scartate per il flag adult: fuori dal database, ma da non riproporre in questa sessione.
+	const skipped = React.useRef(new Set<number>());
 
 	React.useEffect(() => {
 		let cancelled = false;
 		(async () => {
 			try {
-				const { catalog, version } = await loadOnce(artifact);
+				const [{ catalog, version }, adult] = await Promise.all([
+					loadOnce(artifact),
+					getShowAdult(user),
+				]);
 				versionRef.current = version;
-				const next = await recommend(artifact, catalog, user, { n: DECK_SIZE });
+				showAdultRef.current = adult;
+				const next = await recommend(artifact, catalog, user, {
+					n: DECK_SIZE,
+					showAdult: adult,
+					exclude: skipped.current,
+				});
 				if (cancelled) return;
+				setShowAdultState(adult);
 				setCards(next);
 				setLoaded({ attempt, error: null });
 				for (const c of next) prefetchMovie(c.tmdbId);
@@ -69,6 +87,28 @@ export function useDeck(artifact: SQLiteDatabase, user: Db): Deck {
 	const status: DeckStatus =
 		loaded.attempt !== attempt ? 'loading' : loaded.error ? 'error' : 'ready';
 
+	const refill = React.useCallback(
+		async (remaining: Recommendation[]) => {
+			try {
+				const { catalog } = await loadOnce(artifact);
+				const [next] = await recommend(artifact, catalog, user, {
+					n: 1,
+					showAdult: showAdultRef.current,
+					exclude: [...remaining.map((c) => c.qid), ...skipped.current],
+				});
+				if (next) {
+					prefetchMovie(next.tmdbId);
+					setCards((current) =>
+						current.some((c) => c.qid === next.qid) ? current : [...current, next]
+					);
+				}
+			} catch {
+				// Lo swipe è salvo. Il rifornimento fallito accorcia il mazzo: a mazzo vuoto compare "riprova".
+			}
+		},
+		[artifact, user]
+	);
+
 	const swipe = React.useCallback(
 		async (card: Recommendation, action: Action, source: Source) => {
 			await recordEvent(user, {
@@ -82,26 +122,22 @@ export function useDeck(artifact: SQLiteDatabase, user: Db): Deck {
 			});
 			const remaining = cards.filter((c) => c.qid !== card.qid);
 			setCards(remaining);
-			try {
-				const { catalog } = await loadOnce(artifact);
-				const [next] = await recommend(artifact, catalog, user, {
-					n: 1,
-					exclude: remaining.map((c) => c.qid),
-				});
-				if (next) {
-					prefetchMovie(next.tmdbId);
-					setCards((current) =>
-						current.some((c) => c.qid === next.qid) ? current : [...current, next]
-					);
-				}
-			} catch {
-				// Lo swipe è salvo. Il rifornimento fallito accorcia il mazzo: a mazzo vuoto compare "riprova".
-			}
+			await refill(remaining);
 		},
-		[artifact, user, cards]
+		[user, cards, refill]
+	);
+
+	const skip = React.useCallback(
+		async (card: Recommendation) => {
+			skipped.current.add(card.qid);
+			const remaining = cards.filter((c) => c.qid !== card.qid);
+			setCards(remaining);
+			await refill(remaining);
+		},
+		[cards, refill]
 	);
 
 	const reload = React.useCallback(() => setAttempt((a) => a + 1), []);
 
-	return { cards, status, error: loaded.error, swipe, reload };
+	return { cards, status, error: loaded.error, swipe, skip, showAdult, reload };
 }

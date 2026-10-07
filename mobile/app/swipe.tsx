@@ -100,7 +100,11 @@ export default function SwipeScreen() {
 									})
 								}
 								onSwipe={(action, source) => onSwipe(card, action, source)}>
-								<Card card={card} />
+								<Card
+									card={card}
+									showAdult={deck.showAdult}
+									onAdult={() => deck.skip(card)}
+								/>
 							</SwipeCard>
 						))}
 					</View>
@@ -134,9 +138,22 @@ export default function SwipeScreen() {
 }
 
 /** Dati TMDB della carta: scheletro mentre carica, errore esplicito con riprova, altrimenti la carta. */
-function Card({ card }: { card: Recommendation }) {
+function Card({
+	card,
+	showAdult,
+	onAdult,
+}: {
+	card: Recommendation;
+	showAdult: boolean;
+	onAdult: () => void;
+}) {
 	const movie = useMovie(card.tmdbId);
-	if (movie.isPending) return <MovieCardSkeleton />;
+	// Rete di sicurezza: il flag adult di TMDB arriva col dettaglio e vale solo qui, a video (CLAUDE.md).
+	const hide = movie.isSuccess && movie.data.adult && !showAdult;
+	React.useEffect(() => {
+		if (hide) onAdult();
+	}, [hide, onAdult]);
+	if (movie.isPending || hide) return <MovieCardSkeleton />;
 	if (movie.isError)
 		return <MovieCardError message={movie.error.message} onRetry={() => movie.refetch()} />;
 	return <MovieCard movie={movie.data} />;

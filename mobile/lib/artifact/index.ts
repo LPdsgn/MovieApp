@@ -11,7 +11,7 @@ import { decodeNeighbors, type Neighbor } from './blob';
 export const ARTIFACT_ASSET: number = require('@/assets/db/moovie.db');
 
 /** Versione dello schema che questo codice sa leggere. Deve coincidere con `meta.schema_version`. */
-export const SUPPORTED_SCHEMA_VERSION = 2;
+export const SUPPORTED_SCHEMA_VERSION = 3;
 
 /**
  * Nome del file locale, legato all'hash dell'asset: un artefatto nuovo nel bundle viene copiato
@@ -57,9 +57,11 @@ export interface Movie {
 	released: string | null;
 	/** Minuti. */
 	runtime: number | null;
+	/** Generi Wikidata per adulti (film pornografico e sottoclassi). */
+	adult: boolean;
 }
 
-const MOVIE_COLUMNS = 'qid, tmdb_id AS tmdbId, sitelinks, released, runtime';
+const MOVIE_COLUMNS = 'qid, tmdb_id AS tmdbId, sitelinks, released, runtime, adult';
 
 export function getMovie(db: SQLiteDatabase, qid: number): Promise<Movie | null> {
 	return db.getFirstAsync<Movie>(`SELECT ${MOVIE_COLUMNS} FROM movies WHERE qid = ?`, qid);

@@ -56,6 +56,7 @@ maybe('motore sull’artefatto reale', () => {
 		expect(new Set(cards.map((c) => c.qid)).size).toBe(3);
 		for (const c of cards) {
 			const entry = catalog.byQid.get(c.qid)!;
+			expect(entry.adult).toBe(false);
 			expect(entry.sitelinks).toBeGreaterThan(100);
 			expect(entry.released!).toMatch(/^\d{4}-\d{2}-\d{2}$/);
 			expect(c.propensity).toBeCloseTo(0.88);

@@ -29,7 +29,8 @@ export function ArtifactProvider({ children }: { children: React.ReactNode }) {
 			onInit={async (db) => {
 				await readMeta(db); // verifica la versione dello schema prima di rendere l'app
 			}}
-			onError={setError}>
+			// SQLiteProvider chiama onError durante il proprio render: setState rinviato al microtask.
+			onError={(e) => queueMicrotask(() => setError(e))}>
 			{children}
 		</SQLiteProvider>
 	);

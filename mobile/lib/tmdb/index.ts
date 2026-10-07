@@ -55,6 +55,8 @@ export interface CountryProviders {
 }
 export interface MovieDetails {
 	id: number;
+	/** Flag TMDB: rete di sicurezza a runtime, mai in pipeline né nel motore (CLAUDE.md). */
+	adult: boolean;
 	title: string;
 	original_title: string;
 	overview: string;
