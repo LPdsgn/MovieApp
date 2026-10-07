@@ -47,6 +47,8 @@ export interface RecommendOptions {
 	today?: string;
 	/** Per i test. */
 	rng?: () => number;
+	/** Film da non proporre oltre a quelli già visti: le carte già nel mazzo. */
+	exclude?: Iterable<number>;
 }
 
 export interface Recommendation extends Card {
@@ -58,9 +60,10 @@ export async function recommend(
 	artifact: SQLiteDatabase,
 	catalog: Catalog,
 	user: Db,
-	{ n, today = new Date().toISOString().slice(0, 10), rng }: RecommendOptions
+	{ n, today = new Date().toISOString().slice(0, 10), rng, exclude }: RecommendOptions
 ): Promise<Recommendation[]> {
 	const [votes, seen] = await Promise.all([getVotes(user), getSeenQids(user)]);
+	for (const qid of exclude ?? []) seen.add(qid);
 
 	const neighborsOf = new Map<number, Neighbor[]>();
 	for (const qid of votes.keys()) neighborsOf.set(qid, await getNeighbors(artifact, qid));
