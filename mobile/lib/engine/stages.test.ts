@@ -22,7 +22,6 @@ const entry = (
 	sitelinks,
 	released,
 });
-const catalog = new Map([1, 2, 3, 4, 5, 6].map((q) => [q, entry(q)]));
 
 // Generatore deterministico: restituisce in sequenza i valori dati, poi 0.5.
 const seq = (...values: number[]) => {
