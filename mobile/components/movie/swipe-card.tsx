@@ -61,8 +61,22 @@ export const SwipeCard = React.forwardRef<
 
 	React.useImperativeHandle(ref, () => ({ fling: (action) => leave(action, 'button') }), [leave]);
 
+	// Il Pressable riceve il rilascio anche dopo un trascinamento: il tap vale solo se il pan
+	// non si è mai attivato in questo tocco. onBegin = dito giù, onStart = superati 10 pt.
+	const dragged = useSharedValue(false);
+	const pressIfNotDragged = () => {
+		if (!dragged.get()) onPress?.();
+	};
+
 	const pan = Gesture.Pan()
 		.enabled(enabled)
+		.minDistance(10)
+		.onBegin(() => {
+			dragged.set(false);
+		})
+		.onStart(() => {
+			dragged.set(true);
+		})
 		.onUpdate((e) => {
 			if (flying.get()) return;
 			tx.set(e.translationX);
@@ -102,7 +116,7 @@ export const SwipeCard = React.forwardRef<
 		<GestureDetector gesture={pan}>
 			<Animated.View style={cardStyle} className="z-10 w-full">
 				<Pressable
-					onPress={onPress}
+					onPress={pressIfNotDragged}
 					accessibilityRole="button"
 					accessibilityLabel={accessibilityLabel}>
 					{children}
