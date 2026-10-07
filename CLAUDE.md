@@ -199,6 +199,8 @@ Motivazioni in `docs/valutazione-strategie-ml.md`.
 
 **Struttura.** Il motore ha 4 stadi, ognuno è una funzione pura. Nel complesso è `(artefatto, eventi utente) → prossima carta`. Niente framework.
 
+Implementato in `mobile/lib/engine/`: `stages.ts` ha le quattro funzioni pure e le costanti (`ENGINE`: ε, λ del prior, λ di MMR, dimensione del serbatoio e della shortlist), `index.ts` carica i dati e le compone. Il catalogo sta in memoria per sessione (`loadCatalog`); le feature si leggono solo per la shortlist. La diversità MMR usa Jaccard sulle feature, non il TF-IDF della pipeline. `index.test.ts` gira sull'artefatto reale e si salta da solo se manca.
+
 | Stadio       | v1 (sul dispositivo, senza runtime ML)                                                                                                    | Dopo la riscrittura                                                                                                                                             |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Retrieval    | Vicini dei film piaciuti + serbatoio di film popolari per sitelink, che serve anche per le prime carte                                    | + vicini negli embedding                                                                                                                                        |
