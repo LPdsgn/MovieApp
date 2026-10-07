@@ -5,6 +5,7 @@ swift/
 pnpm-lock.yaml
 uv.lock
 mobile/uniwind-types.d.ts
+mobile/expo-env.d.ts
 mobile/.expo/
 mobile/dist/
 
