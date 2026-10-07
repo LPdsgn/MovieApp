@@ -62,9 +62,9 @@ export default function SwipeScreen() {
 					),
 				}}
 			/>
-			<View className="flex-1 gap-6 px-4 pt-safe-offset-14 pb-safe-offset-4">
+			<View className="flex-1 gap-6 pt-safe-offset-14 pb-safe-offset-4">
 				{/* La carta riempie l'altezza disponibile e ne deriva la larghezza (2:3), senza mai superare lo schermo. */}
-				<View className="flex-1 items-center justify-center">
+				<View className="flex-1 items-center justify-center px-8">
 					<View className="h-full max-w-full justify-center" style={{ aspectRatio: 2 / 3 }}>
 						{deck.status === 'loading' && <MovieCardSkeleton />}
 						{deck.status === 'error' && (

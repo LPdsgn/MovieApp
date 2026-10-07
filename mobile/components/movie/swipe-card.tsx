@@ -13,6 +13,9 @@ import { SwipeLabel } from '@/components/movie/swipe-label';
 import { exitOffset, labelOpacities, rotationFor, SWIPE, swipeDecision } from '@/lib/deck/swipe';
 import type { Action, Source } from '@/lib/userdb';
 
+// Ombra leggera dell'originale (Gray-900, raggio 5), sul contenitore: la carta ha overflow-hidden.
+const CARD_SHADOW = { boxShadow: '0 4px 16px rgba(10, 10, 10, 0.3)' } as const;
+
 export interface SwipeCardHandle {
 	/** Fa uscire la carta come se fosse stata trascinata: per i tre bottoni sotto il mazzo. */
 	fling: (action: Action) => void;
@@ -128,7 +131,7 @@ export const SwipeCard = React.forwardRef<
 
 	return (
 		<GestureDetector gesture={pan}>
-			<Animated.View style={cardStyle} className="absolute w-full">
+			<Animated.View style={[cardStyle, CARD_SHADOW]} className="absolute w-full">
 				<Pressable
 					onPress={pressIfNotDragged}
 					accessibilityRole="button"
