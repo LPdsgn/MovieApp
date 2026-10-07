@@ -24,6 +24,7 @@ Documenti in `docs/`:
 - `valutazione-toolchain.md`: lint, format, hook e CI/CD, e perché ESLint + Prettier invece di OXC.
 - `wikidata-api.md`: parametri di WDQS e `wbgetentities` che usa la pipeline, e i comportamenti scoperti misurando.
 - `campioni-vicini.md`: vicini TF-IDF di film noti, misurati, da confrontare in fase di test.
+- `specifica-ui.md`: specifica funzionale e visiva ricavata dall'app Swift (misure, colori, gesti, stringhe), con gli screenshot in `screenshots/`, la mappa sui componenti React Native Reusables e i token del tema. **Leggerla prima di toccare la UI.**
 
 Il passo "esportare le tabelle Core ML" di `valutazione-porting.md` è **superato** dalla decisione su Wikidata (vedi sotto).
 
@@ -261,6 +262,7 @@ Dettagli e riferimenti in `docs/analisi-codebase.md`.
 - **Filtro per piattaforme di streaming.** I provider sono dati TMDB/JustWatch: usarli per filtrare le raccomandazioni è in tensione con la regola "TMDB solo per la UI".
 - **Canale di aggiornamento dell'artefatto:** nuova build, EAS Update o download da un host statico.
 - **Uso commerciale:** richiede un accordo scritto con TMDB.
+- **Contenuti per adulti nel catalogo.** Wikidata non li filtra e il flag `adult` di TMDB non si può usare per le raccomandazioni (vedi `docs/specifica-ui.md`). Possibile filtro sulle feature Wikidata in pipeline.
 
 ## Commit
 
