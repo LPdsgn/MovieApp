@@ -29,3 +29,4 @@ Richieste sempre in GET e in serie, mai in parallelo.
 4. **I valori truthy vanno ricostruiti a mano.** `wbgetentities` restituisce tutti gli statement con il loro `rank`. La semantica di `wdt:` è: i `preferred` se ce ne sono, altrimenti i `normal`, mai i `deprecated`.
 5. **Date e quantità hanno precisione e unità.** P577 con precisione 9 (anno) ha mese e giorno a `00`; P2047 può essere in minuti (Q7727), ore (Q25235) o secondi (Q11574).
 6. **Limiti di frequenza.** WDQS può rispondere 429 con `Retry-After` anche di un minuto durante i disservizi (visto il 05/10/2026). Il client rispetta l'header e riprova con backoff; i risultati parziali restano su disco.
+7. **Le sottoclassi di un genere si prendono con `wdt:P279*`.** `?g wdt:P279* wd:Q185529` restituisce "film pornografico" e le sue 17 sottoclassi in meno di un secondo; i QID sono fissati in `features.py`, da rinfrescare quando si rigenera l'artefatto.

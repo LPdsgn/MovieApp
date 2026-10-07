@@ -144,7 +144,7 @@ Nello storico è comparso un film con titolo e poster a sfondo sessuale ("How to
 
 Scelta, su tre livelli:
 
-1. **Pipeline:** colonna `adult` in `movies`, vera se il film ha fra i generi (P136) uno dei QID dei generi per adulti (da verificare su Wikidata: film pornografico e sottogeneri). Il film resta nel catalogo, così l'impostazione può riattivarlo.
+1. **Pipeline:** colonna `adult` in `movies` (schema 3), vera se il film ha fra i generi (P136) "film pornografico" (Q185529) o una delle sue 17 sottoclassi su Wikidata (`wdt:P279*`, elenco in `features.py`): 47 film su 28.572 all'08/10/2026. "Film erotico" (Q599558, 218 film) non conta. Il film resta nel catalogo, così l'impostazione può riattivarlo.
 2. **Motore:** esclude i film `adult` salvo impostazione **"Mostra contenuti per adulti"** in Impostazioni, spenta per default (chiave `show_adult` in `settings`).
 3. **Runtime:** il flag `adult` di TMDB, già presente nel dettaglio che l'app scarica per ogni carta, scarta la carta prima di mostrarla se l'impostazione è spenta. È un filtro di presentazione, coerente con "TMDB solo per la UI", e non entra né in pipeline né nel motore: la regola è nostra, non un divieto dei termini TMDB.
 

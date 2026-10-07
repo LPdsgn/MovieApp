@@ -196,7 +196,7 @@ Va implementata da subito. Produce i dati del motore di raccomandazione v1, che 
    - paese (P495), lingua originale (P364), compositore (P86), fotografia (P344);
    - decade da P577, durata (P2047).
 - **Output:** un artefatto SQLite **versionato**, con versione dei dati e dello schema, che contiene:
-   - catalogo (QID, id TMDB, sitelink, anno, più la popolarità TMDB come colonna nullable, vuota finché la fonte è disattivata);
+   - catalogo (QID, id TMDB, sitelink, data di uscita, durata, più la popolarità TMDB come colonna nullable, vuota finché la fonte è disattivata, e il flag `adult`: 1 se fra i generi P136 c'è "film pornografico" Q185529 o una sua sottoclasse, 47 film al 08/10/2026; il genere "film erotico" non conta);
    - tabella delle feature per film;
    - top-K vicini precalcolati con TF-IDF sulle feature e similarità del coseno (K=64 come nell'originale). Con l'IDF le feature comuni (genere "drammatico", paese "Stati Uniti") pesano poco e quelle rare (regista, saga) pesano molto. Stanno in un BLOB per film (K record da 6 byte: qid uint32 + coseno uint16, little-endian), perché una riga per vicino costava 4 volte tanto: 41 MB contro 11 (misurato il 07/10/2026 su 28.572 film).
 
@@ -270,7 +270,7 @@ Dettagli e riferimenti in `docs/analisi-codebase.md`.
 - **Filtro per piattaforme di streaming.** I provider sono dati TMDB/JustWatch: usarli per filtrare le raccomandazioni è in tensione con la regola "TMDB solo per la UI".
 - **Canale di aggiornamento dell'artefatto:** nuova build, EAS Update o download da un host statico.
 - **Uso commerciale:** richiede un accordo scritto con TMDB.
-- **Contenuti per adulti nel catalogo** (decisione del 07/10/2026, vedi `docs/specifica-ui.md`): la pipeline marca i film con generi Wikidata per adulti (P136) in una colonna `adult` di `movies`; il motore li esclude salvo impostazione **"Mostra contenuti per adulti"**, spenta per default; a runtime il flag `adult` di TMDB, che arriva già con il dettaglio, fa da rete di sicurezza sulla carta prima di mostrarla. Il flag TMDB non entra in pipeline per la regola "TMDB solo per la UI", non per un divieto dei termini; e non avrebbe comunque preso i titoli provocatori ma non pornografici, che restano fuori da ogni filtro.
+- **Contenuti per adulti nel catalogo** (deciso il 07/10/2026 e fatto l'08/10/2026, vedi `docs/specifica-ui.md`): la pipeline marca i film con generi Wikidata per adulti (P136) in una colonna `adult` di `movies`; il motore li esclude salvo impostazione **"Mostra contenuti per adulti"**, spenta per default; a runtime il flag `adult` di TMDB, che arriva già con il dettaglio, fa da rete di sicurezza sulla carta prima di mostrarla. Il flag TMDB non entra in pipeline per la regola "TMDB solo per la UI", non per un divieto dei termini; e non avrebbe comunque preso i titoli provocatori ma non pornografici, che restano fuori da ogni filtro.
 
 ## Commit
 
