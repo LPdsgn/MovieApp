@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import { HeartIcon, ListFilterIcon, XIcon } from 'lucide-react-native';
 import * as React from 'react';
-import { FlatList, Pressable, View } from 'react-native';
+import { FlatList, Pressable, useWindowDimensions, View } from 'react-native';
 
 import { PosterImage } from '@/components/movie/poster-image';
 import { Screen } from '@/components/screen';
@@ -31,6 +31,8 @@ export default function HistoryScreen() {
 	const [filter, setFilter] = React.useState<HistoryFilter>('all');
 	const [entries, setEntries] = React.useState<HistoryEntry[] | null>(null);
 	const [query, setQuery] = React.useState('');
+	const { width } = useWindowDimensions();
+	const cellWidth = (width - 16 * 2 - 14 * 2) / 3; // padding 16, due spazi da 14
 
 	useFocusEffect(
 		React.useCallback(() => {
@@ -84,7 +86,7 @@ export default function HistoryScreen() {
 					contentInsetAdjustmentBehavior="automatic"
 					contentContainerClassName="gap-3.5 p-4"
 					columnWrapperClassName="gap-3.5"
-					renderItem={({ item }) => <HistoryCell entry={item} />}
+					renderItem={({ item }) => <HistoryCell entry={item} width={cellWidth} />}
 				/>
 			)}
 		</Screen>
@@ -128,13 +130,14 @@ function FilterMenu({
 }
 
 /** Cella: poster con overlay e icona del voto, titolo su una riga. */
-function HistoryCell({ entry }: { entry: HistoryEntry }) {
+function HistoryCell({ entry, width }: { entry: HistoryEntry; width: number }) {
 	const router = useRouter();
 	const movie = useMovie(entry.tmdbId);
 	const loved = entry.action !== 'dislike';
 	return (
 		<Pressable
-			className="flex-1 overflow-hidden rounded-md bg-background active:opacity-80"
+			style={{ width }}
+			className="overflow-hidden rounded-md bg-background active:opacity-80"
 			accessibilityRole="button"
 			accessibilityLabel={movie.data?.title ?? String(entry.tmdbId)}
 			onPress={() =>
@@ -142,7 +145,7 @@ function HistoryCell({ entry }: { entry: HistoryEntry }) {
 			}>
 			<View>
 				<PosterImage path={movie.data?.poster_path} size="w342" />
-				<View className="bg-ink-700/60 absolute inset-0 items-center justify-center">
+				<View className="absolute inset-0 items-center justify-center bg-ink-700/60">
 					<Icon
 						as={loved ? HeartIcon : XIcon}
 						size={34}

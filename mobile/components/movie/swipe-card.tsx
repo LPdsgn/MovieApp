@@ -11,7 +11,7 @@ import Animated, {
 
 import { SwipeLabel } from '@/components/movie/swipe-label';
 import { exitOffset, labelOpacities, rotationFor, SWIPE, swipeDecision } from '@/lib/deck/swipe';
-import type { Action } from '@/lib/userdb';
+import type { Action, Source } from '@/lib/userdb';
 
 export interface SwipeCardHandle {
 	/** Fa uscire la carta come se fosse stata trascinata: per i tre bottoni sotto il mazzo. */
@@ -29,7 +29,7 @@ export const SwipeCard = React.forwardRef<
 		children: React.ReactNode;
 		restingRotation: number;
 		enabled?: boolean;
-		onSwipe: (action: Action) => void;
+		onSwipe: (action: Action, source: Source) => void;
 		onPress?: () => void;
 		accessibilityLabel: string;
 	}
@@ -44,7 +44,7 @@ export const SwipeCard = React.forwardRef<
 	const flying = useSharedValue(false);
 
 	const leave = React.useCallback(
-		(action: Action) => {
+		(action: Action, source: Source) => {
 			'worklet';
 			const to = exitOffset(action);
 			flying.set(true);
@@ -52,14 +52,14 @@ export const SwipeCard = React.forwardRef<
 			ty.set(withTiming(to.y, { duration: SWIPE.duration }));
 			tx.set(
 				withTiming(to.x, { duration: SWIPE.duration }, (finished) => {
-					if (finished) runOnJS(onSwipe)(action);
+					if (finished) runOnJS(onSwipe)(action, source);
 				})
 			);
 		},
 		[flying, onSwipe, rotation, tx, ty]
 	);
 
-	React.useImperativeHandle(ref, () => ({ fling: (action) => leave(action) }), [leave]);
+	React.useImperativeHandle(ref, () => ({ fling: (action) => leave(action, 'button') }), [leave]);
 
 	const pan = Gesture.Pan()
 		.enabled(enabled)
@@ -73,7 +73,7 @@ export const SwipeCard = React.forwardRef<
 			if (flying.get()) return;
 			const action = swipeDecision(e.translationX, e.translationY, width, height);
 			if (action) {
-				leave(action);
+				leave(action, 'swipe');
 			} else {
 				tx.set(withSpring(0));
 				ty.set(withSpring(0));
@@ -100,7 +100,7 @@ export const SwipeCard = React.forwardRef<
 
 	return (
 		<GestureDetector gesture={pan}>
-			<Animated.View style={cardStyle} className="w-full">
+			<Animated.View style={cardStyle} className="z-10 w-full">
 				<Pressable
 					onPress={onPress}
 					accessibilityRole="button"
@@ -134,7 +134,7 @@ export function DeckCard({
 }) {
 	return (
 		<View
-			className="absolute w-full"
+			className="absolute z-0 w-full"
 			style={{ transform: [{ rotate: `${restingRotation}deg` }] }}>
 			{children}
 		</View>

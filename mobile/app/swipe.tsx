@@ -16,7 +16,7 @@ import { useDeck } from '@/lib/deck/use-deck';
 import type { Recommendation } from '@/lib/engine';
 import { t } from '@/lib/i18n';
 import { useMovie } from '@/lib/tmdb/hooks';
-import type { Action } from '@/lib/userdb';
+import type { Action, Source } from '@/lib/userdb';
 import { useUserDb } from '@/lib/userdb/provider';
 
 const HAPTIC: Record<Action, Haptics.ImpactFeedbackStyle> = {
@@ -34,7 +34,7 @@ export default function SwipeScreen() {
 	const top = React.useRef<SwipeCardHandle>(null);
 	const [busy, setBusy] = React.useState(false);
 
-	const onSwipe = async (card: Recommendation, action: Action, source: 'swipe' | 'button') => {
+	const onSwipe = async (card: Recommendation, action: Action, source: Source) => {
 		setBusy(true);
 		Haptics.impactAsync(HAPTIC[action]).catch(() => {});
 		await deck.swipe(card, action, source);
@@ -62,47 +62,50 @@ export default function SwipeScreen() {
 					),
 				}}
 			/>
-			<View className="flex-1 justify-center gap-6 px-4 pt-safe">
-				<View className="aspect-[2/3] w-full justify-center">
-					{deck.status === 'loading' && <MovieCardSkeleton />}
-					{deck.status === 'error' && (
-						<MovieCardError
-							message={deck.error?.message ?? t('discover.error')}
-							onRetry={deck.reload}
-						/>
-					)}
-					{deck.status === 'ready' && !first && (
-						<View className="aspect-[2/3] w-full items-center justify-center rounded-lg bg-card p-6">
-							<Text className="text-center text-lg text-muted-foreground">
-								{t('swipe.empty')}
-							</Text>
-							<Button variant="secondary" className="mt-4" onPress={deck.reload}>
-								<Text>{t('common.retry')}</Text>
-							</Button>
-						</View>
-					)}
-					{[...behind].reverse().map((card) => (
-						<DeckCard key={card.qid} restingRotation={restingRotation(card.qid)}>
-							<Card card={card} />
-						</DeckCard>
-					))}
-					{first && (
-						<SwipeCard
-							key={first.qid}
-							ref={top}
-							restingRotation={restingRotation(first.qid)}
-							enabled={!busy}
-							accessibilityLabel={t('swipe.open')}
-							onPress={() =>
-								router.push({
-									pathname: '/movie/[tmdbId]',
-									params: { tmdbId: String(first.tmdbId) },
-								})
-							}
-							onSwipe={(action) => onSwipe(first, action, 'swipe')}>
-							<Card card={first} />
-						</SwipeCard>
-					)}
+			<View className="flex-1 gap-6 px-4 pt-safe-offset-14 pb-safe-offset-4">
+				{/* La carta riempie l'altezza disponibile e ne deriva la larghezza (2:3), senza mai superare lo schermo. */}
+				<View className="flex-1 items-center justify-center">
+					<View className="h-full max-w-full justify-center" style={{ aspectRatio: 2 / 3 }}>
+						{deck.status === 'loading' && <MovieCardSkeleton />}
+						{deck.status === 'error' && (
+							<MovieCardError
+								message={deck.error?.message ?? t('discover.error')}
+								onRetry={deck.reload}
+							/>
+						)}
+						{deck.status === 'ready' && !first && (
+							<View className="aspect-[2/3] w-full items-center justify-center rounded-lg bg-card p-6">
+								<Text className="text-center text-lg text-muted-foreground">
+									{t('swipe.empty')}
+								</Text>
+								<Button variant="secondary" className="mt-4" onPress={deck.reload}>
+									<Text>{t('common.retry')}</Text>
+								</Button>
+							</View>
+						)}
+						{[...behind].reverse().map((card) => (
+							<DeckCard key={card.qid} restingRotation={restingRotation(card.qid)}>
+								<Card card={card} />
+							</DeckCard>
+						))}
+						{first && (
+							<SwipeCard
+								key={first.qid}
+								ref={top}
+								restingRotation={restingRotation(first.qid)}
+								enabled={!busy}
+								accessibilityLabel={t('swipe.open')}
+								onPress={() =>
+									router.push({
+										pathname: '/movie/[tmdbId]',
+										params: { tmdbId: String(first.tmdbId) },
+									})
+								}
+								onSwipe={(action, source) => onSwipe(first, action, source)}>
+								<Card card={first} />
+							</SwipeCard>
+						)}
+					</View>
 				</View>
 
 				<View className="flex-row items-start justify-between px-6">

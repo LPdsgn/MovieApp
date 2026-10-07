@@ -1,5 +1,6 @@
 /**
  * Geometria dello swipe, pura e con le soglie dell'originale (`swipableCard.swift`, `MovieCard.swift`).
+ * Le funzioni sono worklet: Reanimated le chiama sul thread UI dentro gesti e stili animati.
  * Lavora in frazioni dello schermo: `px` = spostamento orizzontale / larghezza, `py` = verticale / altezza.
  */
 
@@ -24,6 +25,7 @@ export function swipeDecision(
 	width: number,
 	height: number
 ): Action | null {
+	'worklet';
 	const px = dx / width;
 	const py = dy / height;
 	if (px > SWIPE.horizontal) return 'like';
@@ -34,6 +36,7 @@ export function swipeDecision(
 
 /** Rotazione in gradi durante il trascinamento: `(px / 0,2) × 4`. */
 export function rotationFor(dx: number, width: number): number {
+	'worklet';
 	return (dx / width / 0.2) * 4;
 }
 
@@ -44,6 +47,7 @@ export function labelOpacities(
 	width: number,
 	height: number
 ): { yep: number; nope: number; saved: number } {
+	'worklet';
 	const px = dx / width;
 	const py = dy / height;
 	const clamp = (v: number) => Math.min(1, Math.max(0, v));
@@ -57,6 +61,7 @@ export function labelOpacities(
 
 /** Dove esce la carta per ogni azione, in punti. */
 export function exitOffset(action: Action): { x: number; y: number; rotation: number } {
+	'worklet';
 	switch (action) {
 		case 'like':
 			return { x: SWIPE.exitX, y: 0, rotation: 15 };
