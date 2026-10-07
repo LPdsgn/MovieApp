@@ -220,6 +220,15 @@ Servono a tre cose:
 - alla valutazione off-policy (IPS) dei motori futuri sui log;
 - alla metrica di successo: percentuale di swipe a destra e aggiunte alla watchlist per sessione, divise per versione di algoritmo.
 
+**Decisioni del 07/10/2026 sui dati dell'utente** (database `user.db`, separato dall'artefatto, in `mobile/lib/userdb/`):
+
+- lo swipe verso la watchlist è un evento `watchlist` che **vale +1 come un like** e compare nello storico fra gli amati (nell'originale non compariva: era un bug);
+- lo storico è una vista sugli eventi (ultimo evento per film). **"Svuota lo storico"** lo nasconde con l'impostazione `history_cleared_at`, gli eventi restano per motore e metriche. **"Azzera le raccomandazioni"** cancella gli eventi: sono due azioni distinte in Settings → Storage;
+- la rimozione dalla watchlist non produce eventi: per le metriche contano le aggiunte;
+- le liste "coppia, amici, famiglia" dell'originale erano stub mai finiti: non esistono;
+- eventi e watchlist salvano anche `tmdb_id`, così un film uscito dal catalogo a un aggiornamento dei dati resta mostrabile;
+- la ricerca per titolo in storico e watchlist non può usare il disco (i titoli sono contenuto TMDB): filtra sui dati in cache di TanStack Query.
+
 **Fonti di dati.** Anche il ML futuro userà solo feature Wikidata ed eventi dell'utente, mai contenuti TMDB.
 
 **Solo se arrivano interazioni di molti utenti:** item-kNN sui like in comune, ALS o BPR (libreria `implicit`), poi LightFM o LightGBM. Le interazioni possono venire da:
