@@ -49,14 +49,6 @@ export default function RootLayout() {
 										/>
 										<Stack.Screen name="history" />
 										<Stack.Screen
-											name="settings/platforms"
-											options={{ title: t('settings.platforms') }}
-										/>
-										<Stack.Screen
-											name="settings/storage"
-											options={{ title: t('settings.storage') }}
-										/>
-										<Stack.Screen
 											name="settings/about"
 											options={{ title: t('settings.about') }}
 										/>

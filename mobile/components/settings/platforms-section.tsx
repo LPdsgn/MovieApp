@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Pressable, View } from 'react-native';
 
-import { Screen } from '@/components/screen';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Text } from '@/components/ui/text';
@@ -16,7 +15,7 @@ import { getSetting, setSetting } from '@/lib/userdb';
 import { useUserDb } from '@/lib/userdb/provider';
 
 /** Piattaforme di streaming: quattro voci fisse con spunta, salvate in `settings` (l'originale non le salvava). */
-export default function PlatformsScreen() {
+export function PlatformsSection() {
 	const user = useUserDb();
 	const [selected, setSelected] = React.useState<Set<PlatformId> | null>(null);
 
@@ -40,26 +39,24 @@ export default function PlatformsScreen() {
 	};
 
 	return (
-		<Screen>
-			<View className="flex-1 px-4 pt-safe-offset-14">
-				{PLATFORMS.map((p) => {
-					const checked = selected?.has(p.id) ?? false;
-					return (
-						<React.Fragment key={p.id}>
-							<Pressable
-								accessibilityRole="checkbox"
-								accessibilityState={{ checked }}
-								accessibilityLabel={p.name}
-								onPress={() => toggle(p.id)}
-								className="flex-row items-center justify-between py-4 active:opacity-60">
-								<Text className="text-lg text-foreground">{p.name}</Text>
-								<Checkbox checked={checked} onCheckedChange={() => toggle(p.id)} />
-							</Pressable>
-							<Separator className="bg-white/10" />
-						</React.Fragment>
-					);
-				})}
-			</View>
-		</Screen>
+		<View>
+			{PLATFORMS.map((p) => {
+				const checked = selected?.has(p.id) ?? false;
+				return (
+					<React.Fragment key={p.id}>
+						<Pressable
+							accessibilityRole="checkbox"
+							accessibilityState={{ checked }}
+							accessibilityLabel={p.name}
+							onPress={() => toggle(p.id)}
+							className="flex-row items-center justify-between py-4 active:opacity-60">
+							<Text className="text-lg text-foreground">{p.name}</Text>
+							<Checkbox checked={checked} onCheckedChange={() => toggle(p.id)} />
+						</Pressable>
+						<Separator className="bg-white/10" />
+					</React.Fragment>
+				);
+			})}
+		</View>
 	);
 }

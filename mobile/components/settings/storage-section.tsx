@@ -3,7 +3,6 @@ import { Image as ExpoImage } from 'expo-image';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { Screen } from '@/components/screen';
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -25,7 +24,7 @@ import { useUserDb } from '@/lib/userdb/provider';
  * Memoria: le tre azioni dell'originale più "azzera le raccomandazioni" (decisione del 07/10/2026:
  * svuotare lo storico nasconde, azzerare cancella gli eventi). Ogni azione chiede conferma.
  */
-export default function StorageScreen() {
+export function StorageSection() {
 	const user = useUserDb();
 	const queryClient = useQueryClient();
 
@@ -65,19 +64,17 @@ export default function StorageScreen() {
 	];
 
 	return (
-		<Screen>
-			<View className="flex-1 justify-center gap-6 px-4">
-				{actions.map((a) => (
-					<ConfirmButton
-						key={a.label}
-						label={t(a.label)}
-						confirm={t(a.confirm)}
-						variant={a.variant}
-						onConfirm={a.run}
-					/>
-				))}
-			</View>
-		</Screen>
+		<View className="gap-3">
+			{actions.map((a) => (
+				<ConfirmButton
+					key={a.label}
+					label={t(a.label)}
+					confirm={t(a.confirm)}
+					variant={a.variant}
+					onConfirm={a.run}
+				/>
+			))}
+		</View>
 	);
 }
 
