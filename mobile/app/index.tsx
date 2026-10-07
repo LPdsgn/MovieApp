@@ -6,6 +6,7 @@ import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { type ArtifactMeta, readMeta } from '@/lib/artifact';
 import { loadCatalog, recommend, type Recommendation } from '@/lib/engine';
+import { useMovie } from '@/lib/tmdb/hooks';
 import { useUserDb } from '@/lib/userdb/provider';
 
 /** Schermata provvisoria: verifica artefatto, database utente e motore, fino alle prime carte. */
@@ -50,10 +51,7 @@ export default function Screen() {
 							film
 						</Text>
 						{cards.map((c) => (
-							<Text key={c.qid} className="font-mono text-xs text-muted-foreground">
-								Q{c.qid} · tmdb {c.tmdbId} · p={c.propensity}
-								{c.explored ? ' · esplorazione' : ''}
-							</Text>
+							<CardLine key={c.qid} card={c} />
 						))}
 					</>
 				) : (
@@ -61,5 +59,16 @@ export default function Screen() {
 				)}
 			</View>
 		</>
+	);
+}
+
+function CardLine({ card }: { card: Recommendation }) {
+	const movie = useMovie(card.tmdbId);
+	const title = movie.isPending ? '…' : movie.isError ? movie.error.message : movie.data.title;
+	return (
+		<Text className="font-mono text-xs text-muted-foreground">
+			{title} · p={card.propensity}
+			{card.explored ? ' · esplorazione' : ''}
+		</Text>
 	);
 }
