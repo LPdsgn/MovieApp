@@ -55,6 +55,7 @@ pnpm test -t "nome del test"            # un solo test
 pnpm exec expo install <pacchetto>      # dipendenze native: versione allineata alla SDK
 pnpm dlx expo-doctor                    # controllo di coerenza del progetto Expo
 pnpm dlx @react-native-reusables/cli@latest add switch alert-dialog --styling-library uniwind
+pnpm db:pull                  # copia pipeline/dist/moovie.sqlite in assets/db/moovie.db (ignorato da git)
 ```
 
 `proxy/` (dalla root con `pnpm --filter proxy <script>`):
@@ -121,6 +122,7 @@ Motivazioni in `docs/valutazione-toolchain.md`.
    - `allowBuilds`: pnpm blocca gli script di installazione delle dipendenze non elencati. `lefthook: false` perché gli hook li installa lo script `prepare` di root;
    - `minimumReleaseAgeExclude`: pnpm rifiuta i pacchetti pubblicati da poco e aggiunge da solo le eccezioni quando `expo install` le richiede.
 - **ESLint fissato a `^9`:** `eslint-plugin-react` 7, incluso da `eslint-config-expo`, non funziona con ESLint 10.
+- **TypeScript 6 non include più da solo i pacchetti `@types`:** i tipi globali servono elencati in `compilerOptions.types` (oggi `jest`). Senza, i file `*.test.ts` non passano il typecheck.
 - **`mobile/expo-types.d.ts`** contiene il riferimento a `expo/types` (per esempio `*.css`), perché `expo-env.d.ts` è generato da `expo start` ed escluso da git. Senza, il typecheck fallisce in CI e negli hook.
 - **Classi Tailwind:** i colori del tema Uniwind stanno in `@layer theme`, non in `@theme`, quindi per Tailwind sono classi sconosciute e Prettier le mette in testa. È normale.
 - **Hook:**
@@ -185,7 +187,7 @@ Va implementata da subito. Produce i dati del motore di raccomandazione v1, che 
    - tabella delle feature per film;
    - top-K vicini precalcolati con TF-IDF sulle feature e similarità del coseno (K=64 come nell'originale). Con l'IDF le feature comuni (genere "drammatico", paese "Stati Uniti") pesano poco e quelle rare (regista, saga) pesano molto. Stanno in un BLOB per film (K record da 6 byte: qid uint32 + coseno uint16, little-endian), perché una riga per vicino costava 4 volte tanto: 41 MB contro 11 (misurato il 07/10/2026 su 28.572 film).
 
-   L'app lo include nel bundle. Il canale di aggiornamento è un punto aperto.
+   L'app lo include nel bundle come asset `mobile/assets/db/moovie.db` (estensione `db` aggiunta agli `assetExts` di Metro), **non committato**: si copia dalla pipeline con `pnpm --filter mobile db:pull`. Al primo avvio `SQLiteProvider` lo copia in un file locale il cui nome contiene l'hash dell'asset, così un artefatto nuovo non sovrascrive a ogni avvio e la versione dello schema si verifica in `onInit`. Il canale di aggiornamento è un punto aperto.
 
 - **Aggiornare i dati** significa rigenerare l'artefatto: nessuna logica dell'app deve presupporre un catalogo fisso.
 
