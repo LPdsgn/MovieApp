@@ -120,6 +120,12 @@ Motivazioni in `docs/valutazione-toolchain.md`.
    - Il template Expo SDK 57 ha il React Compiler attivo, e `eslint-plugin-react-hooks` 7 ne attiva 14 diagnostiche che oxlint non ha.
    - typescript-eslint supporta TypeScript solo fino alla 6.0.
 - **Reanimated con il React Compiler attivo:** sui valori condivisi usare `get()` e `set()`, non `.value`.
+   - Le funzioni di altri moduli chiamate dentro gesti o `useAnimatedStyle` devono avere la direttiva `'worklet'` (vedi `mobile/lib/deck/swipe.ts`).
+   - Il React Compiler vieta `setState` sincrono dentro `useEffect`: lo stato di caricamento si deriva da un contatore di tentativi (vedi `useDeck`).
+- **Icone lucide e `react-native-svg`:** mai `fill="currentColor"`, fa crashare l'app in nativo senza errore JavaScript. Colori espliciti.
+- **Sovrapposizione di viste:** l'ordine dei figli non basta a decidere chi sta sopra quando ci sono viste assolute e animate: `z-10` sulla carta interattiva e `z-0` su quelle dietro (vedi `components/movie/swipe-card.tsx`).
+- **Safe area con Uniwind free:** le utility `pt-safe` ecc. funzionano solo con `SafeAreaProvider` + `SafeAreaListener` che chiama `Uniwind.updateInsets` (in `app/_layout.tsx`).
+- **Provare l'app:** basta Expo Go, non serve un dev client: `pnpm --filter mobile exec expo start --ios` dalla root. In background va lanciato con `--filter mobile`, non con `cd mobile &&`, altrimenti Metro parte dalla root e genera `tsconfig.json` e `.expo/` lì. Le route si aprono con `xcrun simctl openurl booted "exp://<ip>:8081/--/history"`.
 - **Prettier si esegue a parte**, non come regola ESLint: niente `eslint-plugin-prettier`.
 - **Solo pnpm**, mai npm o npx: `pnpm exec` per i binari locali, `pnpm dlx` per quelli una tantum. La versione è fissata in `packageManager` (`package.json` di root).
 - **Workspace pnpm** (`pnpm-workspace.yaml`):
