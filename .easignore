@@ -1,0 +1,25 @@
+# Regole di .gitignore, meno l'artefatto dati: con .easignore presente EAS ignora .gitignore.
+.DS_Store
+movies.json
+node_modules/
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+pipeline/.cache/
+pipeline/dist/
+proxy/.dev.vars
+proxy/.wrangler/
+mobile/.expo/
+mobile/dist/
+mobile/android/
+mobile/ios/
+
+# Non servono alla build
+swift/
+docs/
+.git/
+
+# Artefatto dati del bundle: gitignored, ma deve salire su EAS
+mobile/assets/db/*.db
+!mobile/assets/db/moovie.db
