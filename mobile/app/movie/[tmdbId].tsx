@@ -38,18 +38,24 @@ export default function MovieScreen() {
 
 	return (
 		<View className="flex-1 bg-background">
-			{/* Maniglia disegnata: il page sheet non ne ha una propria. */}
+			{/* Maniglia disegnata: il page sheet iOS non ne ha una propria. */}
 			<View className="absolute top-2 left-1/2 z-10 h-1.5 w-9 -translate-x-1/2 rounded-full bg-white/40" />
 			<Pressable
 				onPress={() => router.back()}
 				accessibilityRole="button"
 				accessibilityLabel={t('common.close')}
 				hitSlop={12}
+				// Niente inset: page sheet iOS e form sheet Android stanno già sotto la status bar, e gli inset di
+				// Uniwind sono quelli della finestra, quindi `top-safe` spingerebbe il bottone 52 dp troppo in basso.
 				className="absolute top-5 right-4 z-10 h-10 w-10 items-center justify-center rounded-full bg-black/40">
 				<Icon as={XIcon} className="text-white" size={20} />
 			</Pressable>
 
-			<ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
+			{/* nestedScrollEnabled: senza, su Android il form sheet non riceve il trascinamento verso il basso. */}
+			<ScrollView
+				showsVerticalScrollIndicator={false}
+				nestedScrollEnabled
+				contentContainerClassName="pb-24">
 				{movie.isPending && (
 					<View className="px-4 pt-8">
 						<MovieCardSkeleton />

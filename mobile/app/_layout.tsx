@@ -5,6 +5,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { ThemeProvider } from 'expo-router/react-navigation';
 import { StatusBar } from 'expo-status-bar';
+import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaListener, SafeAreaProvider } from 'react-native-safe-area-context';
 import { Uniwind } from 'uniwind';
@@ -55,8 +56,12 @@ export default function RootLayout() {
 										<Stack.Screen
 											name="movie/[tmdbId]"
 											options={{
-												// Page sheet iOS con chiusura trascinando. Non formSheet: lì la ScrollView non viene disegnata.
-												presentation: 'modal',
+												// iOS: page sheet con chiusura trascinando. Non formSheet: lì la ScrollView non viene disegnata.
+												// Android: `modal` sarebbe una schermata intera sotto la status bar; formSheet è un vero
+												// bottom sheet (BottomSheetBehavior) con sfondo oscurato, sotto la status bar.
+												presentation: Platform.OS === 'android' ? 'formSheet' : 'modal',
+												sheetAllowedDetents: [1],
+												sheetCornerRadius: 24,
 												headerShown: false,
 											}}
 										/>
